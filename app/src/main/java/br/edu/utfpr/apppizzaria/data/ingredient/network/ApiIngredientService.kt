@@ -26,5 +26,6 @@ interface ApiIngredientService {
     suspend fun insert(@Body ingredient: IngredientCreateRequest): List<IngredientDefaultResponse>
 
     @PATCH("v1/ingredients/{id}")
-    suspend fun insert(@Body ingredient: IngredientUpdateRequest): List<IngredientDefaultResponse>
+    suspend fun update(@Body ingredient: IngredientUpdateRequest,
+                       @Path("id") id: UUID): List<IngredientDefaultResponse>
 }

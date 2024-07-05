@@ -1,6 +1,8 @@
 package br.edu.utfpr.apppizzaria.data.network
 
 import br.edu.utfpr.apppizzaria.data.ingredient.network.ApiIngredientService
+import br.edu.utfpr.apppizzaria.data.pizzeria.enumerations.State
+import br.edu.utfpr.apppizzaria.data.pizzeria.network.ApiPizzeriaService
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import okhttp3.MediaType.Companion.toMediaType
@@ -27,5 +29,9 @@ private val apiPizzaClient = Retrofit.Builder()
 object ApiService {
     val ingredients: ApiIngredientService by lazy {
         apiPizzaClient.create(ApiIngredientService::class.java)
+    }
+
+    val pizzerias: ApiPizzeriaService by lazy {
+        apiPizzaClient.create(ApiPizzeriaService::class.java)
     }
 }

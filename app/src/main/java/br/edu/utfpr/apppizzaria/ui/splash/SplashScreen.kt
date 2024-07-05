@@ -1,6 +1,5 @@
 package br.edu.utfpr.apppizzaria.ui.splash
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -21,13 +20,13 @@ import br.edu.utfpr.apppizzaria.R
 @Composable
 fun SplashScreen(
     modifier: Modifier = Modifier,
-    viewModel: SplashViewModel = viewModel(),
-    onFinishSplash: () -> Unit
+    viewModel: SplashViewModel = viewModel(factory = SplashViewModel.Factory),
+    onFinishSplash: (Boolean) -> Unit
 ) {
 
     LaunchedEffect(viewModel.uiState.visible) {
         if (!viewModel.uiState.visible) {
-            onFinishSplash()
+            onFinishSplash(viewModel.uiState.userLogged)
         }
     }
 

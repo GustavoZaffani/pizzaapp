@@ -1,6 +1,12 @@
 package br.edu.utfpr.apppizzaria.ui.shared.utils
 
-import br.edu.utfpr.apppizzaria.ui.ingredient.form.FormField
+import androidx.annotation.StringRes
+
+data class FormField(
+    val value: String = "",
+    @StringRes
+    val errorMessageCode: Int? = null
+)
 
 class FormFieldUtils {
 

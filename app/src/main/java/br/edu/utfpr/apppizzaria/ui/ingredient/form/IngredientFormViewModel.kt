@@ -1,7 +1,6 @@
 package br.edu.utfpr.apppizzaria.ui.ingredient.form
 
 import android.util.Log
-import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,18 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.data.ingredient.request.IngredientCreateRequest
+import br.edu.utfpr.apppizzaria.data.ingredient.request.IngredientUpdateRequest
 import br.edu.utfpr.apppizzaria.data.network.ApiService
 import br.edu.utfpr.apppizzaria.ui.Arguments
+import br.edu.utfpr.apppizzaria.ui.shared.utils.FormField
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
 import br.edu.utfpr.apppizzaria.ui.shared.utils.Utils
 import kotlinx.coroutines.launch
 import java.util.UUID
-
-data class FormField(
-    val value: String = "",
-    @StringRes
-    val errorMessageCode: Int? = null
-)
 
 data class FormState(
     val name: FormField = FormField(),
@@ -62,6 +57,9 @@ class IngredientFormViewModel(
 
     init {
         if (ingredientId != Utils.GERERIC_UUID) {
+            uiState = uiState.copy(
+                ingredientId = ingredientId!!
+            )
             loadIngredient()
         }
     }
@@ -202,32 +200,20 @@ class IngredientFormViewModel(
     }
 
     fun save() {
-        if (ingredientId != Utils.GERERIC_UUID) {
-            insert()
-        }
-    }
-
-    fun insert() {
-//        if (!isValidForm()) {
-//            return
-//        }
-
         uiState = uiState.copy(
             isSaving = true,
             hasErrorSaving = false
         )
 
         viewModelScope.launch {
-            val ingredient = IngredientCreateRequest(
-                name = uiState.formState.name.value,
-                description = uiState.formState.description.value,
-                price = uiState.formState.price.value.toBigDecimal(),
-                measurementUnit = MeasurementUnit.fromDescription(uiState.formState.measurementUnit.value),
-                quantity = uiState.formState.quantity.value.toBigDecimal(),
-            )
-
             uiState = try {
-                ApiService.ingredients.insert(ingredient)
+                if (uiState.isNewIngredient) {
+                    ApiService.ingredients.insert(buildObjectToInsert())
+                } else {
+                    ApiService.ingredients.update(buildObjectToUpdate(), uiState.ingredientId)
+                }
+
+
                 uiState.copy(
                     isSaving = false,
                     ingredientSaved = true
@@ -240,6 +226,24 @@ class IngredientFormViewModel(
                 )
             }
         }
+    }
+
+    private fun buildObjectToInsert(): IngredientCreateRequest {
+        return IngredientCreateRequest(
+            name = uiState.formState.name.value,
+            description = uiState.formState.description.value,
+            price = uiState.formState.price.value.toBigDecimal(),
+            measurementUnit = MeasurementUnit.fromDescription(uiState.formState.measurementUnit.value),
+            quantity = uiState.formState.quantity.value.toBigDecimal(),
+        )
+    }
+
+    private fun buildObjectToUpdate(): IngredientUpdateRequest {
+        return IngredientUpdateRequest(
+            name = uiState.formState.name.value,
+            description = uiState.formState.description.value,
+            price = uiState.formState.price.value.toBigDecimal()
+        )
     }
 
 //    fun isValidForm(): Boolean {

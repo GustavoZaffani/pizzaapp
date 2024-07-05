@@ -41,6 +41,7 @@ fun IngredientFormScreen(
         if (viewModel.uiState.ingredientSaved) {
             onIngredientSaved()
         }
+
     }
 
     LaunchedEffect(snackbarHostState, viewModel.uiState.hasErrorSaving) {
