@@ -102,7 +102,9 @@ fun PizzaApp(
                 currentRoute = currentRoute,
                 navController = navController
             ) {
-                HomeScreen()
+                HomeScreen(
+                    openDrawer = { coroutineScope.launch { drawerState.open() } }
+                )
             }
         }
         composable(route = Routes.INGREDIENTS_LIST) {

@@ -1,14 +1,17 @@
 package br.edu.utfpr.apppizzaria.ui.user.register.pizzeria
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocalPizza
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -17,6 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -38,12 +45,15 @@ fun PizzeriaRegisterScreen(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onRegisterSaved: () -> Unit
 ) {
+    val context = LocalContext.current
+
     LaunchedEffect(viewModel.uiState.pizzeriaSaved) {
         if (viewModel.uiState.pizzeriaSaved) {
-//            snackbarHostState.showSnackbar(
-//                "Pizzaria registrada com sucesso. Por favor, efetue o login."
-//            )
-            // TODO: ver melhor pratica de mensagem de sucesso
+            Toast.makeText(
+                context,
+                "Pizzaria registrada com sucesso. Por favor, efetue o login.",
+                Toast.LENGTH_LONG
+            ).show()
             onRegisterSaved()
         }
     }
@@ -60,15 +70,18 @@ fun PizzeriaRegisterScreen(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .verticalScroll(rememberScrollState())) {
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
 
             WelcomeCard(
                 icon = Icons.Outlined.LocalPizza
             )
             FormContent(
                 formState = viewModel.uiState.formState,
+                allFormDisable = viewModel.uiState.isSaving,
                 onNameChanged = viewModel::onNameChanged,
                 onPhoneChanged = viewModel::onPhoneChanged,
                 onEmailChanged = viewModel::onEmailChanged,
@@ -90,7 +103,7 @@ fun PizzeriaRegisterScreen(
                 onClearValueCity = viewModel::onClearValueCity,
                 onClearValueNumber = viewModel::onClearValueNumber,
                 onClearValueComplement = viewModel::onClearValueComplement,
-                onClearValueLogin = {}
+                onClearValueLogin = viewModel::onClearValueLogin
             )
             Button(
                 modifier = Modifier
@@ -98,11 +111,18 @@ fun PizzeriaRegisterScreen(
                     .padding(horizontal = 16.dp),
                 onClick = viewModel::save
             ) {
+                if (viewModel.uiState.isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = Color.White
+                    )
+                } else {
+                    Text(text = "Registrar")
+                }
 
-                Text(text = "Registrar")
             }
         }
-
     }
 }
 
@@ -120,6 +140,7 @@ private fun PizzeriaRegisterScreenPreview() {
 private fun FormContent(
     modifier: Modifier = Modifier,
     formState: FormState,
+    allFormDisable: Boolean = false,
     onNameChanged: (String) -> Unit,
     onPhoneChanged: (String) -> Unit,
     onEmailChanged: (String) -> Unit,
@@ -156,21 +177,24 @@ private fun FormContent(
             value = formState.name.value,
             onValueChange = onNameChanged,
             errorMessageCode = formState.name.errorMessageCode,
-            onClearValue = onClearValueName
+            onClearValue = onClearValueName,
+            enabled = !allFormDisable
         )
         PhoneField(
             label = "Telefone",
             value = formState.phone.value,
             onValueChange = onPhoneChanged,
             errorMessageCode = formState.phone.errorMessageCode,
-            onClearValue = onClearValuePhone
+            onClearValue = onClearValuePhone,
+            enabled = !allFormDisable
         )
         EmailField(
             label = "Email",
             value = formState.email.value,
             onValueChange = onEmailChanged,
             errorMessageCode = formState.email.errorMessageCode,
-            onClearValue = onClearValueEmail
+            onClearValue = onClearValueEmail,
+            enabled = !allFormDisable
         )
 
         SectionHeader(
@@ -181,48 +205,58 @@ private fun FormContent(
             value = formState.zipCode.value,
             onValueChange = onZipCodeChanged,
             errorMessageCode = formState.zipCode.errorMessageCode,
-            onClearValue = onClearValueZipCode
+            onClearValue = onClearValueZipCode,
+            enabled = !allFormDisable
         )
         TextField(
             label = "Rua",
             value = formState.street.value,
             onValueChange = onStreetChanged,
             errorMessageCode = formState.street.errorMessageCode,
-            onClearValue = onClearValueStreet
+            keyboardCapitalization = KeyboardCapitalization.Words,
+            onClearValue = onClearValueStreet,
+            enabled = !allFormDisable
         )
         TextField(
             label = "Bairro",
             value = formState.neighborhood.value,
             onValueChange = onNeighborhoodChanged,
             errorMessageCode = formState.neighborhood.errorMessageCode,
-            onClearValue = onClearValueNeighborhood
+            keyboardCapitalization = KeyboardCapitalization.Words,
+            onClearValue = onClearValueNeighborhood,
+            enabled = !allFormDisable
         )
         TextField(
             label = "Cidade",
             value = formState.city.value,
             onValueChange = onCityChanged,
             errorMessageCode = formState.city.errorMessageCode,
-            onClearValue = onClearValueCity
+            keyboardCapitalization = KeyboardCapitalization.Words,
+            onClearValue = onClearValueCity,
+            enabled = !allFormDisable
         )
         TextField(
             label = "Número",
             value = formState.number.value,
             onValueChange = onNumberChanged,
             errorMessageCode = formState.number.errorMessageCode,
-            onClearValue = onClearValueNumber
+            onClearValue = onClearValueNumber,
+            enabled = !allFormDisable
         )
         DropdownField(
             selectedValue = formState.state.value,
             label = formState.state.value,
             onValueChangedEvent = onStateChanged,
-            options = State.getDescriptionList()
+            options = State.getDescriptionList(),
+            enabled = !allFormDisable
         )
         TextField(
             label = "Complemento",
             value = formState.complement.value,
             onValueChange = onComplementChanged,
             errorMessageCode = formState.complement.errorMessageCode,
-            onClearValue = onClearValueComplement
+            onClearValue = onClearValueComplement,
+            enabled = !allFormDisable
         )
 
         SectionHeader(
@@ -233,13 +267,16 @@ private fun FormContent(
             value = formState.login.value,
             onValueChange = onLoginChanged,
             errorMessageCode = formState.login.errorMessageCode,
-            onClearValue = onClearValueLogin
+            onClearValue = onClearValueLogin,
+            enabled = !allFormDisable
         )
         PasswordField(
             label = "Senha",
             value = formState.password.value,
             onValueChange = onPasswordChanged,
-            errorMessageCode = formState.password.errorMessageCode
+            errorMessageCode = formState.password.errorMessageCode,
+            keyboardImeAction = ImeAction.Done,
+            enabled = !allFormDisable
         )
     }
 }

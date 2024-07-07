@@ -1,6 +1,5 @@
 package br.edu.utfpr.apppizzaria.ui.user.register.pizzeria
 
-import android.util.JsonWriter
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +12,7 @@ import br.edu.utfpr.apppizzaria.data.pizzeria.request.AddressRequest
 import br.edu.utfpr.apppizzaria.data.pizzeria.request.PizzeriaCreateRequest
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormField
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
+import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateFieldRequired
 import kotlinx.coroutines.launch
 
 data class FormState(
@@ -24,7 +24,9 @@ data class FormState(
     val neighborhood: FormField = FormField(),
     val city: FormField = FormField(),
     val number: FormField = FormField(),
-    val state: FormField = FormField(),
+    val state: FormField = FormField(
+        value = State.PR.description
+    ),
     val complement: FormField = FormField(),
     val login: FormField = FormField(),
     val password: FormField = FormField(),
@@ -61,6 +63,10 @@ class PizzeriaRegisterViewModel : ViewModel() {
     var uiState: PizzeriaRegisterUiState by mutableStateOf(PizzeriaRegisterUiState())
 
     fun save() {
+        if (!isValidForm()) {
+            return
+        }
+
         uiState = uiState.copy(
             isSaving = true,
             hasErrorSaving = false
@@ -68,7 +74,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
 
         viewModelScope.launch {
             uiState = try {
-//                ApiService.pizzerias.create(buildObject())
+                ApiService.pizzerias.create(buildObject())
 
                 uiState.copy(
                     isSaving = false,
@@ -83,6 +89,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
             }
         }
     }
+
     private fun buildObject(): PizzeriaCreateRequest {
         return PizzeriaCreateRequest(
             name = uiState.formState.name.value,
@@ -108,7 +115,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     name = uiState.formState.name.copy(
                         value = name,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(name)
                     )
                 )
             )
@@ -121,7 +128,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     phone = uiState.formState.phone.copy(
                         value = phone,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(phone)
                     )
                 )
             )
@@ -134,7 +141,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     email = uiState.formState.email.copy(
                         value = email,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(email)
                     )
                 )
             )
@@ -147,7 +154,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     zipCode = uiState.formState.zipCode.copy(
                         value = zipCode,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(zipCode)
                     )
                 )
             )
@@ -160,7 +167,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     street = uiState.formState.street.copy(
                         value = street,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(street)
                     )
                 )
             )
@@ -173,7 +180,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     neighborhood = uiState.formState.neighborhood.copy(
                         value = neighborhood,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(neighborhood)
                     )
                 )
             )
@@ -186,7 +193,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     city = uiState.formState.city.copy(
                         value = city,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(city)
                     )
                 )
             )
@@ -198,8 +205,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
             uiState = uiState.copy(
                 formState = uiState.formState.copy(
                     number = uiState.formState.number.copy(
-                        value = number,
-//                        errorMessageCode = validateNome(nome)
+                        value = number
                     )
                 )
             )
@@ -212,7 +218,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     state = uiState.formState.state.copy(
                         value = state,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(state)
                     )
                 )
             )
@@ -225,7 +231,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     complement = uiState.formState.complement.copy(
                         value = complement,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(complement)
                     )
                 )
             )
@@ -237,8 +243,8 @@ class PizzeriaRegisterViewModel : ViewModel() {
             uiState = uiState.copy(
                 formState = uiState.formState.copy(
                     login = uiState.formState.login.copy(
-                        value = login,
-//                        errorMessageCode = validateNome(nome)
+                        value = login.lowercase(),
+                        errorMessageCode = validateFieldRequired(login)
                     )
                 )
             )
@@ -251,7 +257,7 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 formState = uiState.formState.copy(
                     password = uiState.formState.password.copy(
                         value = password,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(password)
                     )
                 )
             )
@@ -347,4 +353,58 @@ class PizzeriaRegisterViewModel : ViewModel() {
             )
         )
     }
+
+    fun onClearValueLogin() {
+        uiState = uiState.copy(
+            formState = uiState.formState.copy(
+                login = uiState.formState.login.copy(
+                    value = ""
+                )
+            )
+        )
+    }
+
+    private fun isValidForm(): Boolean {
+        uiState = uiState.copy(
+            formState = uiState.formState.copy(
+                name = uiState.formState.name.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.name.value)
+                ),
+                phone = uiState.formState.phone.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.phone.value)
+                ),
+                email = uiState.formState.email.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.email.value)
+                ),
+                zipCode = uiState.formState.zipCode.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.zipCode.value)
+                ),
+                street = uiState.formState.street.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.street.value)
+                ),
+                neighborhood = uiState.formState.neighborhood.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.neighborhood.value)
+                ),
+                city = uiState.formState.city.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.city.value)
+                ),
+                state = uiState.formState.state.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.state.value)
+                ),
+                complement = uiState.formState.complement.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.complement.value)
+                ),
+                login = uiState.formState.login.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.login.value)
+                ),
+                password = uiState.formState.password.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.password.value)
+                )
+            )
+        )
+
+        return uiState.formState.isValid
+    }
+
+
 }

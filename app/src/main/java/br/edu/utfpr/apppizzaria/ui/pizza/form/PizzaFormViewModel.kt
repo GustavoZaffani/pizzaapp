@@ -15,6 +15,7 @@ import br.edu.utfpr.apppizzaria.data.pizza.request.PizzaUpdateRequest
 import br.edu.utfpr.apppizzaria.ui.Arguments
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormField
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
+import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateFieldRequired
 import br.edu.utfpr.apppizzaria.ui.shared.utils.Utils
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -33,7 +34,7 @@ data class FormState(
     val ingredients: List<PizzaIngredientState> = listOf()
 ) {
     val isValid
-        get(): Boolean = FormFieldUtils.isValid(listOf(name, price)) && ingredients.isNotEmpty()
+        get(): Boolean = FormFieldUtils.isValid(listOf(name, price)) && ingredients.any { it.quantity > BigDecimal.ZERO }
 
     val ingredientsAdded
         get(): List<String> = ingredients
@@ -43,15 +44,17 @@ data class FormState(
 
 data class PizzaFormUiState(
     val pizzaId: UUID = Utils.GERERIC_UUID,
-    val isLoading: Boolean = false,
-    val hasErrorLoading: Boolean = false,
     val formState: FormState = FormState(),
+    val isLoadingPizza: Boolean = false,
+    val isLoadingIngredients: Boolean = false,
+    val hasErrorLoading: Boolean = false,
     val isSaving: Boolean = false,
     val hasErrorSaving: Boolean = false,
     val pizzaSaved: Boolean = false
 ) {
     val isNewPizza get(): Boolean = pizzaId == Utils.GERERIC_UUID
-    val isSuccessLoading get(): Boolean = !isLoading && !hasErrorLoading
+    val isSuccessLoading get(): Boolean = !isLoadingPizza && !isLoadingIngredients && !hasErrorLoading
+    val isAnyLoading get(): Boolean = isLoadingPizza || isLoadingIngredients
 }
 
 class PizzaFormViewModel(
@@ -74,9 +77,9 @@ class PizzaFormViewModel(
         }
     }
 
-    fun loadInfoToAddPizza() {
+    private fun loadInfoToAddPizza() {
         uiState = uiState.copy(
-            isLoading = true,
+            isLoadingIngredients = true,
             hasErrorLoading = false
         )
 
@@ -85,7 +88,7 @@ class PizzaFormViewModel(
                 val ingredients = ApiService.ingredients.findAll()
 
                 uiState.copy(
-                    isLoading = false,
+                    isLoadingIngredients = false,
                     formState = FormState(
                         ingredients = ingredients.map {
                             PizzaIngredientState(
@@ -100,7 +103,7 @@ class PizzaFormViewModel(
             } catch (ex: Exception) {
                 Log.d(tag, "Erro ao carregar os dados do ingrediente", ex)
                 uiState.copy(
-                    isLoading = false,
+                    isLoadingIngredients = false,
                     hasErrorLoading = true
                 )
             }
@@ -109,7 +112,7 @@ class PizzaFormViewModel(
 
     fun loadPizza() {
         uiState = uiState.copy(
-            isLoading = true,
+            isLoadingPizza = true,
             hasErrorLoading = false
         )
 
@@ -118,7 +121,7 @@ class PizzaFormViewModel(
                 val ingredient = ApiService.pizzas.findById(pizzaId!!)
 
                 uiState.copy(
-                    isLoading = false,
+                    isLoadingPizza = false,
                     formState = FormState(
                         name = FormField(ingredient.name),
                         price = FormField(ingredient.price.toString()),
@@ -135,7 +138,7 @@ class PizzaFormViewModel(
             } catch (ex: Exception) {
                 Log.d(tag, "Erro ao carregar os dados da pizza", ex)
                 uiState.copy(
-                    isLoading = false,
+                    isLoadingPizza = false,
                     hasErrorLoading = true
                 )
             }
@@ -148,7 +151,7 @@ class PizzaFormViewModel(
                 formState = uiState.formState.copy(
                     name = uiState.formState.name.copy(
                         value = name,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(name)
                     )
                 )
             )
@@ -161,11 +164,31 @@ class PizzaFormViewModel(
                 formState = uiState.formState.copy(
                     price = uiState.formState.price.copy(
                         value = price,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(price)
                     )
                 )
             )
         }
+    }
+
+    fun onClearValueName() {
+        uiState = uiState.copy(
+            formState = uiState.formState.copy(
+                name = uiState.formState.name.copy(
+                    value = ""
+                )
+            )
+        )
+    }
+
+    fun onClearValuePrice() {
+        uiState = uiState.copy(
+            formState = uiState.formState.copy(
+                price = uiState.formState.price.copy(
+                    value = ""
+                )
+            )
+        )
     }
 
     fun onAddIngredient(ingredient: PizzaIngredientState) {
@@ -201,6 +224,10 @@ class PizzaFormViewModel(
     }
 
     fun save() {
+        if (!isValidForm()) {
+            return
+        }
+
         uiState = uiState.copy(
             isSaving = true,
             hasErrorSaving = false
@@ -241,7 +268,7 @@ class PizzaFormViewModel(
                 }
         )
     }
-//
+
     private fun buildObjectToUpdate(): PizzaUpdateRequest {
         return PizzaUpdateRequest(
             name = uiState.formState.name.value,
@@ -249,21 +276,17 @@ class PizzaFormViewModel(
         )
     }
 
-//    fun isValidForm(): Boolean {
-//        uiState = uiState.copy(
-//            formState = uiState.formState.copy(
-//                nome = uiState.formState.nome.copy(
-//                    errorMessageCode = validateNome(uiState.formState.nome.value)
-//                ),
-//                cpf = uiState.formState.cpf.copy(
-//                    errorMessageCode = validateCpf(uiState.formState.cpf.value)
-//                ),
-//                telefone = uiState.formState.telefone.copy(
-//                    errorMessageCode = validateTelefone(uiState.formState.telefone.value)
-//                )
-//            )
-//        )
-//
-//        return uiState.formState.isValid
-//    }
+    private fun isValidForm(): Boolean {
+        uiState = uiState.copy(
+            formState = uiState.formState.copy(
+                name = uiState.formState.name.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.name.value)
+                ),
+                price = uiState.formState.price.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.price.value)
+                )
+            )
+        )
+        return uiState.formState.isValid
+    }
 }

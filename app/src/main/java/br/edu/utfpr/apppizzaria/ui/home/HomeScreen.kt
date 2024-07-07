@@ -4,37 +4,95 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.ui.shared.components.AnimationTypingText
+import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-    Column(
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    openDrawer: () -> Unit,
+) {
+    Scaffold(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_baseline_local_pizza),
-            contentDescription = "Logo",
-            modifier = Modifier.size(128.dp)
-        )
-        AnimationTypingText(text = "Pizza's App", typingSpeed = 200L)
+        topBar = {
+            HomeAppBar(
+                openDrawer = openDrawer
+            )
+        },
+    ) { innerPadding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_baseline_local_pizza),
+                contentDescription = "Logo",
+                modifier = Modifier.size(128.dp)
+            )
+            AnimationTypingText(text = "Pizza's App", typingSpeed = 200L)
+        }
     }
+
+
 }
 
 @Preview(showBackground = true, heightDp = 400)
 @Composable
 fun HomeScreenPreview() {
     AppPizzariaTheme {
-        HomeScreen()
+        HomeScreen(
+            openDrawer = {}
+        )
+    }
+}
+
+@Composable
+private fun HomeAppBar(
+    modifier: Modifier = Modifier,
+    openDrawer: () -> Unit
+) {
+    AppBar(
+        modifier = modifier,
+        title = "Pizza's App",
+        showActions = false,
+        navigationIcon = {
+            IconButton(onClick = openDrawer) {
+                Icon(
+                    imageVector = Icons.Filled.Menu,
+                    tint = Color.White,
+                    contentDescription = "Abrir menu"
+                )
+            }
+        },
+        actions = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeAppBarPreview() {
+    AppPizzariaTheme {
+        HomeAppBar(
+            openDrawer = {}
+        )
     }
 }

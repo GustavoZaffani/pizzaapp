@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
+import br.edu.utfpr.apppizzaria.ui.shared.components.DefaultActionFormToolbar
 import br.edu.utfpr.apppizzaria.ui.shared.components.Loading
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.CurrencyField
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.DropdownField
@@ -76,6 +77,7 @@ fun IngredientFormScreen(
                 modifier = Modifier.padding(innerPadding),
                 formState = viewModel.uiState.formState,
                 allFormDisable = viewModel.uiState.isSaving,
+                isEditing = !viewModel.uiState.isNewIngredient,
                 onNameChanged = viewModel::onNameChanged,
                 onDescriptionChanged = viewModel::onDescriptionChanged,
                 onPriceChanged = viewModel::onPriceChanged,
@@ -115,23 +117,10 @@ private fun IngredientAppBar(
             }
         },
         actions = {
-            if (isSaving) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .padding(all = 16.dp),
-                    strokeWidth = 2.dp,
-                    color = Color.White
-                )
-            } else {
-                IconButton(onClick = onSavePressed) {
-                    Icon(
-                        imageVector = Icons.Filled.Save,
-                        tint = Color.White,
-                        contentDescription = "Salvar"
-                    )
-                }
-            }
+            DefaultActionFormToolbar(
+                isSaving = isSaving,
+                onSavePressed = onSavePressed
+            )
         }
     )
 }
@@ -152,6 +141,7 @@ private fun IngredientAppBarPreview() {
 private fun FormContent(
     modifier: Modifier = Modifier,
     formState: FormState,
+    isEditing: Boolean,
     allFormDisable: Boolean = false,
     onNameChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
@@ -203,7 +193,7 @@ private fun FormContent(
                 MeasurementUnit.LT.description,
                 MeasurementUnit.KG.description
             ),
-            enabled = !allFormDisable
+            enabled = !allFormDisable && !isEditing
         )
         NumberField(
             label = "Quantidade",
@@ -211,7 +201,7 @@ private fun FormContent(
             onValueChange = onQuantityChanged,
             errorMessageCode = formState.quantity.errorMessageCode,
             onClearValue = onClearValueQuantity,
-            enabled = !allFormDisable
+            enabled = !allFormDisable && !isEditing
         )
     }
 }
@@ -223,6 +213,7 @@ private fun FormContentPreview() {
     AppPizzariaTheme {
         FormContent(
             formState = FormState(),
+            isEditing = false,
             onNameChanged = {},
             onDescriptionChanged = {},
             onPriceChanged = {},

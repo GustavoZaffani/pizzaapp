@@ -31,7 +31,11 @@ fun ZipCodeField(
         modifier = modifier,
         label = label,
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { text ->
+            var newText = text.filter { it.isDigit() }
+            if (newText.length > 8) newText = newText.dropLast(1)
+            onValueChange(newText)
+        },
         enabled = enabled,
         errorMessageCode = errorMessageCode,
         keyboardType = KeyboardType.Number,

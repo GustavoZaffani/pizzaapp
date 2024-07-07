@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
+import br.edu.utfpr.apppizzaria.ui.shared.components.DefaultActionFormToolbar
+import br.edu.utfpr.apppizzaria.ui.shared.components.Loading
 import br.edu.utfpr.apppizzaria.ui.shared.components.SectionHeader
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.CurrencyField
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.TextField
@@ -76,16 +78,28 @@ fun PizzaFormScreen(
             )
         }
     ) { innerPadding ->
-        FormContent(
-            modifier = Modifier.padding(innerPadding),
-            isNewPizza = viewModel.uiState.isNewPizza,
-            formState = viewModel.uiState.formState,
-            onNameChanged = viewModel::onNameChanged,
-            onPriceChanged = viewModel::onPriceChanged,
-            onClearValueName = { },
-            onAddIngredient = viewModel::onAddIngredient,
-            onRemoveIngredient = viewModel::onRemoveIngredient
-        )
+        val textLoading =
+            if (viewModel.uiState.isLoadingPizza) "Carregando pizza..." else "Buscando ingredientes..."
+
+        if (viewModel.uiState.isAnyLoading) {
+            Loading(
+                modifier = modifier.padding(innerPadding),
+                text = textLoading
+            )
+        } else {
+            FormContent(
+                modifier = Modifier.padding(innerPadding),
+                isNewPizza = viewModel.uiState.isNewPizza,
+                formState = viewModel.uiState.formState,
+                allFormDisable = viewModel.uiState.isSaving,
+                onNameChanged = viewModel::onNameChanged,
+                onPriceChanged = viewModel::onPriceChanged,
+                onClearValueName = viewModel::onClearValueName,
+                onClearValuePrice = viewModel::onClearValuePrice,
+                onAddIngredient = viewModel::onAddIngredient,
+                onRemoveIngredient = viewModel::onRemoveIngredient
+            )
+        }
     }
 }
 
@@ -107,20 +121,17 @@ private fun PizzaAppBar(
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     tint = Color.White,
                     contentDescription = "Voltar"
                 )
             }
         },
         actions = {
-            IconButton(onClick = onSavePressed) {
-                Icon(
-                    imageVector = Icons.Filled.Save,
-                    tint = Color.White,
-                    contentDescription = "Salvar"
-                )
-            }
+            DefaultActionFormToolbar(
+                isSaving = isSaving,
+                onSavePressed = onSavePressed
+            )
         }
     )
 }
@@ -142,10 +153,12 @@ private fun PizzaAppBarPreview() {
 private fun FormContent(
     isNewPizza: Boolean,
     modifier: Modifier = Modifier,
+    allFormDisable: Boolean = false,
     formState: FormState,
     onNameChanged: (String) -> Unit,
     onPriceChanged: (String) -> Unit,
     onClearValueName: () -> Unit,
+    onClearValuePrice: () -> Unit,
     onAddIngredient: (PizzaIngredientState) -> Unit,
     onRemoveIngredient: (PizzaIngredientState) -> Unit
 ) {
@@ -167,14 +180,16 @@ private fun FormContent(
             value = formState.name.value,
             onValueChange = onNameChanged,
             errorMessageCode = formState.name.errorMessageCode,
-            onClearValue = onClearValueName
+            onClearValue = onClearValueName,
+            enabled = !allFormDisable
         )
         CurrencyField(
             label = "Preço",
             value = formState.price.value,
             onValueChange = onPriceChanged,
             errorMessageCode = formState.price.errorMessageCode,
-            onClearValue = {  }
+            onClearValue = onClearValuePrice,
+            enabled = !allFormDisable
         )
 
 
@@ -186,6 +201,7 @@ private fun FormContent(
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 text = "Nenhum ingrediente adicionado",
+                color = MaterialTheme.colorScheme.error,
                 fontStyle = FontStyle.Italic
             )
         } else {
@@ -196,7 +212,7 @@ private fun FormContent(
             )
         }
 
-        if (isNewPizza) {
+        if (isNewPizza && !allFormDisable) {
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -252,6 +268,7 @@ private fun FormContentPreview() {
             onNameChanged = {},
             onPriceChanged = {},
             onClearValueName = {},
+            onClearValuePrice = {},
             onAddIngredient = {},
             onRemoveIngredient = {}
         )

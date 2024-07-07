@@ -31,7 +31,11 @@ fun PhoneField(
         modifier = modifier,
         label = label,
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { text ->
+            var newText = text.filter { it.isDigit() }
+            if (newText.length > 11) newText = newText.dropLast(1)
+            onValueChange(newText)
+        },
         errorMessageCode = errorMessageCode,
         enabled = enabled,
         keyboardCapitalization = KeyboardCapitalization.None,
