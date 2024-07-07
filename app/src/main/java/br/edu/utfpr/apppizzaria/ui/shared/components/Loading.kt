@@ -3,6 +3,7 @@ package br.edu.utfpr.apppizzaria.ui.shared.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -23,12 +24,14 @@ fun Loading(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-//        CircularProgressIndicator(
-//            color = MaterialTheme.colorScheme.primary,
-//            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-//            modifier = Modifier.size(60.dp)
-//        )
-//        AnimationTypingText(text = text, typingSpeed = 200)
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(80.dp)
+                .padding(bottom = 16.dp),
+            color = MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+        AnimationTypingText(text = text, typingSpeed = 100L)
     }
 }
 

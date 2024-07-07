@@ -23,7 +23,7 @@ fun AppBar(
     TopAppBar(
         modifier = modifier,
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = Color.White
         ),
         title = {

@@ -1,4 +1,4 @@
-package br.edu.utfpr.apppizzaria.ui.ingredient.list
+package br.edu.utfpr.apppizzaria.ui.pizza.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,17 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,13 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
-import br.edu.utfpr.apppizzaria.data.ingredient.response.IngredientDefaultResponse
+import br.edu.utfpr.apppizzaria.data.pizza.response.PizzaDefaultResponse
+import br.edu.utfpr.apppizzaria.data.pizza.response.PizzaIngredientDefaultResponse
 import br.edu.utfpr.apppizzaria.extensions.formatToCurrency
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
 import br.edu.utfpr.apppizzaria.ui.shared.components.CardList
@@ -48,28 +43,28 @@ import java.math.BigDecimal
 import java.util.UUID
 
 @Composable
-fun IngredientListScreen(
+fun PizzaListScreen(
     modifier: Modifier = Modifier,
-    onNewIngredientPressed: () -> Unit,
-    viewModel: IngredientsListViewModel = viewModel(),
+    onNewPizzaPressed: () -> Unit,
+    viewModel: PizzaListViewModel = viewModel(),
     openDrawer: () -> Unit,
-    onIngredientPressed: (IngredientDefaultResponse) -> Unit
+    onPizzaPressed: (PizzaDefaultResponse) -> Unit
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            IngredientAppBar(
+            PizzaAppBar(
                 showActions = viewModel.uiState.isSuccess,
-                onRefreshPressed = viewModel::loadIngredients,
+                onRefreshPressed = viewModel::loadPizzas,
                 openDrawer = openDrawer
             )
         },
         floatingActionButton = {
             if (viewModel.uiState.isSuccess) {
-                FloatingActionButton(onClick = onNewIngredientPressed) {
+                FloatingActionButton(onClick = onNewPizzaPressed) {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = "Novo ingrediente"
+                        contentDescription = "Nova pizza"
                     )
                 }
             }
@@ -78,55 +73,55 @@ fun IngredientListScreen(
         if (viewModel.uiState.loading) {
             Loading(
                 modifier = Modifier.padding(innerPadding),
-                text = "Carregando ingredientes...",
+                text = "Carregando pizzas...",
             )
         } else if (viewModel.uiState.hasError) {
             ErrorDefault(
                 modifier = Modifier.padding(innerPadding),
-                onRetry = viewModel::loadIngredients,
-                text = "Erro ao carregar os ingredientes"
+                onRetry = viewModel::loadPizzas,
+                text = "Erro ao carregar as pizzas"
             )
         } else {
-            IngredientList(
+            PizzaList(
                 modifier = Modifier.padding(innerPadding),
-                ingredients = viewModel.uiState.ingredients,
-                onItemPressed = onIngredientPressed
+                pizzas = viewModel.uiState.pizzas,
+                onItemPressed = onPizzaPressed
             )
         }
     }
 }
 
 @Composable
-private fun IngredientList(
+private fun PizzaList(
     modifier: Modifier = Modifier,
-    ingredients: List<IngredientDefaultResponse> = listOf(),
-    onItemPressed: (IngredientDefaultResponse) -> Unit
+    pizzas: List<PizzaDefaultResponse> = listOf(),
+    onItemPressed: (PizzaDefaultResponse) -> Unit
 ) {
-    if (ingredients.isEmpty()) {
+    if (pizzas.isEmpty()) {
         EmptyList(
             modifier = modifier,
             description = "teste"
         )
     } else {
-        IngredientListContent(
+        PizzaListContent(
             modifier = modifier,
-            ingredients = ingredients,
+            pizzas = pizzas,
             onItemPressed = onItemPressed
         )
     }
 }
 
 @Composable
-private fun IngredientListContent(
+private fun PizzaListContent(
     modifier: Modifier = Modifier,
-    ingredients: List<IngredientDefaultResponse>,
-    onItemPressed: (IngredientDefaultResponse) -> Unit
+    pizzas: List<PizzaDefaultResponse>,
+    onItemPressed: (PizzaDefaultResponse) -> Unit
 ) {
     CardList(
         modifier = modifier,
-        items = ingredients,
+        items = pizzas,
         onItemPressed = onItemPressed
-    ) { ingredient ->
+    ) { pizza ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -141,24 +136,20 @@ private fun IngredientListContent(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = ingredient.name,
+                        text = pizza.name,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
-                val stockBackground = if (BigDecimal.ZERO >= ingredient.quantity) {
-                    Color(0xC8BE0E0E)
-                } else Color(0xC80D7901)
-
                 Column(
                     modifier = Modifier
                         .clip(RoundedCornerShape(24.dp))
-                        .background(stockBackground)
+                        .background(Color(0xC80D7901))
                         .padding(vertical = 2.dp, horizontal = 8.dp),
                     horizontalAlignment = Alignment.End
                 ) {
-                    Text(text = ingredient.stockDescription, color = Color.White)
+                    Text(text = pizza.price.formatToCurrency(), color = Color.White)
                 }
             }
 
@@ -168,24 +159,20 @@ private fun IngredientListContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(
-                        text = ingredient.price.formatToCurrency(),
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
-                }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(
-                        text = ingredient.description,
-                        fontSize = 16.sp,
-                        color = Color.Gray
-                    )
+                    Row {
+                        Text(
+                            text = "Ingredientes: ",
+                            fontSize = 16.sp,
+                            fontStyle = FontStyle.Italic)
+                        Text(
+                            text = pizza.ingredientList,
+                            fontSize = 16.sp,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         }
@@ -194,41 +181,47 @@ private fun IngredientListContent(
 
 @Preview(showBackground = true, heightDp = 400)
 @Composable
-private fun IngredientListContentPreview() {
+private fun PizzaListContentPreview() {
     AppPizzariaTheme {
-        IngredientListContent(
-            ingredients = listOf(
-                IngredientDefaultResponse(
+        PizzaListContent(
+            pizzas = listOf(
+                PizzaDefaultResponse(
                     id = UUID.randomUUID(),
                     name = "Alho",
-                    description = "Poró",
-                    measurementUnit = MeasurementUnit.UN,
-                    price = BigDecimal.TEN,
-                    quantity = BigDecimal.ONE
+                    price = BigDecimal.ONE,
+                    ingredients = listOf(
+                        PizzaIngredientDefaultResponse(
+                            id = UUID.randomUUID(),
+                            ingredientId = UUID.randomUUID(),
+                            ingredientName = "Cebola",
+                            quantity = BigDecimal.ONE
+                        ),
+                        PizzaIngredientDefaultResponse(
+                            id = UUID.randomUUID(),
+                            ingredientId = UUID.randomUUID(),
+                            ingredientName = "Alho",
+                            quantity = BigDecimal.ONE
+                        )
+                    )
                 ),
-                IngredientDefaultResponse(
-                    id = UUID.randomUUID(),
-                    name = "Carne moída",
-                    description = "Carne de primeira",
-                    measurementUnit = MeasurementUnit.KG,
-                    price = BigDecimal.valueOf(19.99),
-                    quantity = BigDecimal.ZERO
-                ),
-                IngredientDefaultResponse(
-                    id = UUID.randomUUID(),
-                    name = "Alho",
-                    description = "Poró",
-                    measurementUnit = MeasurementUnit.UN,
-                    price = BigDecimal.TEN,
-                    quantity = BigDecimal.ONE
-                ),
-                IngredientDefaultResponse(
+                PizzaDefaultResponse(
                     id = UUID.randomUUID(),
                     name = "Alho",
-                    description = "Poró",
-                    measurementUnit = MeasurementUnit.UN,
-                    price = BigDecimal.TEN,
-                    quantity = BigDecimal.ONE
+                    price = BigDecimal.ONE,
+                    ingredients = listOf(
+                        PizzaIngredientDefaultResponse(
+                            id = UUID.randomUUID(),
+                            ingredientId = UUID.randomUUID(),
+                            ingredientName = "Cebola",
+                            quantity = BigDecimal.ONE
+                        ),
+                        PizzaIngredientDefaultResponse(
+                            id = UUID.randomUUID(),
+                            ingredientId = UUID.randomUUID(),
+                            ingredientName = "Alho",
+                            quantity = BigDecimal.ONE
+                        )
+                    )
                 )
             ),
             onItemPressed = {}
@@ -237,7 +230,7 @@ private fun IngredientListContentPreview() {
 }
 
 @Composable
-private fun IngredientAppBar(
+private fun PizzaAppBar(
     modifier: Modifier = Modifier,
     showActions: Boolean,
     onRefreshPressed: () -> Unit,
@@ -245,7 +238,7 @@ private fun IngredientAppBar(
 ) {
     AppBar(
         modifier = modifier,
-        title = "Ingredientes",
+        title = "Pizzas",
         showActions = showActions,
         navigationIcon = {
             IconButton(onClick = openDrawer) {
@@ -270,9 +263,9 @@ private fun IngredientAppBar(
 
 @Preview(showBackground = true)
 @Composable
-fun IngredientAppBarPreview() {
+fun PizzaAppBarPreview() {
     AppPizzariaTheme {
-        IngredientAppBar(
+        PizzaAppBar(
             showActions = true,
             onRefreshPressed = {},
             openDrawer = {}

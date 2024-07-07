@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 
 @Composable

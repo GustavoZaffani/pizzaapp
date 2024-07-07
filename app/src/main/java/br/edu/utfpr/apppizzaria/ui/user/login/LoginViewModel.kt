@@ -4,21 +4,19 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import br.edu.utfpr.apppizzaria.data.network.ApiService
+import br.edu.utfpr.apppizzaria.data.pizzeria.request.PizzeriaLoginRequest
 import br.edu.utfpr.apppizzaria.data.user.local.UserLogged
 import br.edu.utfpr.apppizzaria.data.user.local.UserLoggedDatasource
-import br.edu.utfpr.apppizzaria.data.user.local.UserType
-import br.edu.utfpr.apppizzaria.ui.Arguments
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormField
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
+import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateFieldRequired
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 data class FormState(
     val login: FormField = FormField(),
@@ -41,17 +39,16 @@ data class LoginRegisterUiState(
 )
 
 
-class LoginViewModel(
-    savedStateHandle: SavedStateHandle,
-    private val userLoggedDatasource: UserLoggedDatasource
-) : ViewModel() {
+class LoginViewModel(private val userLoggedDatasource: UserLoggedDatasource) : ViewModel() {
 
     private val tag: String = "LoginViewModel"
     var uiState: LoginRegisterUiState by mutableStateOf(LoginRegisterUiState())
-    val userType: UserType? =
-        savedStateHandle.get<String>(Arguments.USER_TYPE)?.let { UserType.valueOf(it) }
 
     fun login() {
+        if (!isValidForm()) {
+            return
+        }
+
         uiState = uiState.copy(
             isProcessing = true,
             hasErrorLogin = false
@@ -59,10 +56,7 @@ class LoginViewModel(
 
         viewModelScope.launch {
             uiState = try {
-                val userLogged =
-                    if (userType == UserType.PIZZERIA) loginPizzeria() else loginCustomer()
-
-                userLoggedDatasource.saveUserLogged(userLogged)
+                userLoggedDatasource.saveUserLogged(loginPizzeria())
 
                 uiState.copy(
                     isProcessing = false,
@@ -78,21 +72,17 @@ class LoginViewModel(
         }
     }
 
-    // TODO: implementar chamada
-    fun loginPizzeria(): UserLogged {
-        return UserLogged(
-            id = UUID.fromString("1b0c4a25-92c8-4d69-858f-c3d0a7523206"),
-            name = "Taberna",
-            userType = UserType.PIZZERIA
+    private suspend fun loginPizzeria(): UserLogged {
+        val userLogged = ApiService.pizzerias.login(
+            PizzeriaLoginRequest(
+                login = uiState.formState.login.value,
+                password = uiState.formState.password.value
+            )
         )
-    }
 
-    // TODO: implementar chamada
-    fun loginCustomer(): UserLogged {
         return UserLogged(
-            id = UUID.fromString(""),
-            name = "",
-            userType = UserType.CUSTOMER
+            id = userLogged.id,
+            name = userLogged.name
         )
     }
 
@@ -101,8 +91,8 @@ class LoginViewModel(
             uiState = uiState.copy(
                 formState = uiState.formState.copy(
                     login = uiState.formState.login.copy(
-                        value = login,
-//                        errorMessageCode = validateNome(nome)
+                        value = login.lowercase(),
+                        errorMessageCode = validateFieldRequired(login)
                     )
                 )
             )
@@ -115,21 +105,44 @@ class LoginViewModel(
                 formState = uiState.formState.copy(
                     password = uiState.formState.password.copy(
                         value = password,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(password)
                     )
                 )
             )
         }
     }
 
+    fun onClearLogin() {
+        uiState = uiState.copy(
+            formState = uiState.formState.copy(
+                login = uiState.formState.login.copy(
+                    value = ""
+                )
+            )
+        )
+    }
+
+    private fun isValidForm(): Boolean {
+        uiState = uiState.copy(
+            formState = uiState.formState.copy(
+                login = uiState.formState.login.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.login.value)
+                ),
+                password = uiState.formState.password.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.password.value)
+                )
+            )
+        )
+
+        return uiState.formState.isValid
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
-                val savedStateHandle = this.createSavedStateHandle()
 
                 LoginViewModel(
-                    savedStateHandle = savedStateHandle,
                     userLoggedDatasource = UserLoggedDatasource(context = application!!)
                 )
             }

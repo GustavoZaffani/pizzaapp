@@ -5,6 +5,5 @@ import java.util.UUID
 
 data class UserLogged(
     val id: UUID = Utils.GERERIC_UUID,
-    val name: String = "",
-    val userType: UserType = UserType.PIZZERIA
+    val name: String = ""
 )

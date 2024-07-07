@@ -12,8 +12,7 @@ class UserLoggedDatasource(
             if (it.id.isNotBlank()) {
                 return UserLogged(
                     id = UUID.fromString(it.id),
-                    name = it.name,
-                    userType = UserType.valueOf(it.userType)
+                    name = it.name
                 )
             }
             null
@@ -25,7 +24,6 @@ class UserLoggedDatasource(
             currentUserLogged.toBuilder()
                 .setId(user.id.toString())
                 .setName(user.name)
-                .setUserType(user.userType.toString())
                 .build()
         }
     }
@@ -35,7 +33,6 @@ class UserLoggedDatasource(
             it.toBuilder()
                 .clearId()
                 .clearName()
-                .clearUserType()
                 .build()
         }
     }

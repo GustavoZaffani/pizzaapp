@@ -15,48 +15,48 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import br.edu.utfpr.apppizzaria.data.user.local.UserType
-import br.edu.utfpr.apppizzaria.ui.choose.UserTypeChooseScreen
+import br.edu.utfpr.apppizzaria.ui.drawer.Drawer
 import br.edu.utfpr.apppizzaria.ui.home.HomeScreen
 import br.edu.utfpr.apppizzaria.ui.ingredient.form.IngredientFormScreen
 import br.edu.utfpr.apppizzaria.ui.ingredient.list.IngredientListScreen
-import br.edu.utfpr.apppizzaria.ui.drawer.Drawer
+import br.edu.utfpr.apppizzaria.ui.pizza.form.PizzaFormScreen
+import br.edu.utfpr.apppizzaria.ui.pizza.list.PizzaListScreen
+import br.edu.utfpr.apppizzaria.ui.sale.list.SaleListScreen
 import br.edu.utfpr.apppizzaria.ui.splash.SplashScreen
 import br.edu.utfpr.apppizzaria.ui.user.login.LoginScreen
-import br.edu.utfpr.apppizzaria.ui.user.register.customer.CustomerRegisterScreen
 import br.edu.utfpr.apppizzaria.ui.user.register.pizzeria.PizzeriaRegisterScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 object Screens {
-    const val INGREDIENTS_LIST = "ingredients"
-    const val INGREDIENTS_FORM = "ingredientsForm"
     const val SPLASH = "splash"
     const val HOME = "home"
     const val LOGIN = "login"
-    const val USER_TYPE_CHOOSE = "userTypeChoose"
     const val REGISTER_PIZZERIA = "registerPizzeria"
-    const val REGISTER_CUSTOMER = "registerCustomer"
+    const val INGREDIENTS_LIST = "ingredients"
+    const val INGREDIENTS_FORM = "ingredientsForm"
+    const val PIZZA_LIST = "pizza"
+    const val PIZZA_FORM = "pizzaForm"
+    const val SALE_LIST = "sales"
 }
 
 object Arguments {
     const val INGREDIENT_ID = "ingredientId"
-    const val USER_TYPE = "userType"
+    const val PIZZA_ID = "pizzaId"
 }
 
 object Routes {
     const val SPLASH = Screens.SPLASH
     const val HOME = Screens.HOME
-    const val LOGIN = "${Screens.LOGIN}?${Arguments.USER_TYPE}={${Arguments.USER_TYPE}}"
-    const val USER_TYPE_CHOOSE = Screens.USER_TYPE_CHOOSE
+    const val LOGIN = Screens.LOGIN
     const val REGISTER_PIZZERIA = Screens.REGISTER_PIZZERIA
-    const val REGISTER_CUSTOMER = Screens.REGISTER_CUSTOMER
     const val INGREDIENTS_LIST = Screens.INGREDIENTS_LIST
     const val INGREDIENTS_FORM =
         "${Screens.INGREDIENTS_FORM}?${Arguments.INGREDIENT_ID}={${Arguments.INGREDIENT_ID}}"
-    const val PIZZAS_LIST = "pizza" // TODO
-    const val SALES_LIST = "sales" // TODO
-    const val REPORTS_LIST = "reports" // TODO
+    const val PIZZA_LIST = Screens.PIZZA_LIST
+    const val PIZZA_FORM =
+        "${Screens.PIZZA_FORM}?${Arguments.PIZZA_ID}={${Arguments.PIZZA_ID}}"
+    const val SALES_LIST = Screens.SALE_LIST
 }
 
 @Composable
@@ -77,72 +77,39 @@ fun PizzaApp(
     ) {
         composable(route = Routes.SPLASH) {
             SplashScreen(onFinishSplash = { userLogged ->
-                if (userLogged) {
-                    navigateToHome(navController)
-                } else {
-                    navController.navigate(Routes.USER_TYPE_CHOOSE) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            inclusive = true
-                        }
-                    }
-                }
+                if (userLogged) navigateTo(navController, Routes.HOME)
+                else navigateTo(navController, Routes.LOGIN)
             })
         }
-        composable(
-            route = Routes.LOGIN,
-            arguments = listOf(
-                navArgument(name = "userType") { type = NavType.StringType; nullable = false }
-            )) {
+        composable(route = Routes.LOGIN) {
             LoginScreen(
-                onClickNewRegister = { userType ->
-                    if (UserType.PIZZERIA == userType) {
-                        navController.navigate(Routes.REGISTER_PIZZERIA)
-                    }
-                },
+                onClickNewRegister = { navController.navigate(Routes.REGISTER_PIZZERIA) },
                 onLoginSuccess = {
-                    navigateToHome(navController)
-                }
-            )
-        }
-        composable(route = Routes.USER_TYPE_CHOOSE) {
-            UserTypeChooseScreen(
-                onClick = { userType ->
-                    navController.navigate("${Screens.LOGIN}?${Arguments.USER_TYPE}=$userType")
+                    navigateTo(navController, Routes.HOME)
                 }
             )
         }
         composable(route = Routes.REGISTER_PIZZERIA) {
             PizzeriaRegisterScreen(
                 onRegisterSaved = {
-                    navigateToLogin(navController, UserType.PIZZERIA)
-                }
-            )
-        }
-        composable(route = Routes.REGISTER_CUSTOMER) {
-            CustomerRegisterScreen(
-                onRegisterSaved = {
-                    navigateToLogin(navController, UserType.CUSTOMER)
+                    navigateTo(navController, Routes.LOGIN)
                 }
             )
         }
         composable(route = Routes.HOME) {
-            Drawer(
+            DefaultDrawer(
                 drawerState = drawerState,
                 currentRoute = currentRoute,
-                onPizzaPressed = { },
-                onIngredientPressed = { navigateToIngredientList(navController) },
-                onLogoutSuccess = { navigateToUserTypeChoose(navController) }
+                navController = navController
             ) {
                 HomeScreen()
             }
         }
         composable(route = Routes.INGREDIENTS_LIST) {
-            Drawer(
+            DefaultDrawer(
                 drawerState = drawerState,
                 currentRoute = currentRoute,
-                onPizzaPressed = { },
-                onIngredientPressed = { navigateToIngredientList(navController) },
-                onLogoutSuccess = { navigateToUserTypeChoose(navController) }
+                navController = navController
             ) {
                 IngredientListScreen(
                     onNewIngredientPressed = { navController.navigate(Screens.INGREDIENTS_FORM) },
@@ -164,39 +131,75 @@ fun PizzaApp(
                     navController.popBackStack()
                 },
                 onIngredientSaved = {
-                    navigateToIngredientList(navController)
+                    navigateTo(navController, Routes.INGREDIENTS_LIST)
                 }
             )
         }
-    }
-}
-
-private fun navigateToIngredientList(navController: NavHostController) {
-    navController.navigate(Routes.INGREDIENTS_LIST) {
-        popUpTo(navController.graph.findStartDestination().id) {
-            inclusive = true
+        composable(route = Routes.PIZZA_LIST) {
+            DefaultDrawer(
+                drawerState = drawerState,
+                currentRoute = currentRoute,
+                navController = navController
+            ) {
+                PizzaListScreen(
+                    openDrawer = { coroutineScope.launch { drawerState.open() } },
+                    onNewPizzaPressed = { navController.navigate(Screens.PIZZA_FORM) },
+                    onPizzaPressed = { pizza ->
+                        navController.navigate("${Screens.PIZZA_FORM}?${Arguments.PIZZA_ID}=${pizza.id}")
+                    }
+                )
+            }
+        }
+        composable(
+            route = Routes.PIZZA_FORM,
+            arguments = listOf(
+                navArgument(name = "id") { type = NavType.StringType; nullable = true }
+            )
+        ) {
+            PizzaFormScreen(
+                onBackPressed = {
+                    navController.popBackStack()
+                },
+                onPizzaSaved = {
+                    navigateTo(navController, Routes.PIZZA_LIST)
+                }
+            )
+        }
+        composable(route = Routes.SALES_LIST) {
+            DefaultDrawer(
+                drawerState = drawerState,
+                currentRoute = currentRoute,
+                navController = navController
+            ) {
+                SaleListScreen(
+                    openDrawer = { coroutineScope.launch { drawerState.open() } },
+                )
+            }
         }
     }
 }
 
-private fun navigateToLogin(navController: NavHostController, userType: UserType) {
-    navController.navigate("${Screens.LOGIN}?${Arguments.USER_TYPE}=$userType") {
-        popUpTo(navController.graph.findStartDestination().id) {
-            inclusive = true
-        }
+@Composable
+fun DefaultDrawer(
+    drawerState: DrawerState,
+    currentRoute: String,
+    navController: NavHostController,
+    content: @Composable () -> Unit
+) {
+    Drawer(
+        drawerState = drawerState,
+        currentRoute = currentRoute,
+        onPizzaPressed = { navigateTo(navController, Routes.PIZZA_LIST) },
+        onIngredientPressed = { navigateTo(navController, Routes.INGREDIENTS_LIST) },
+        onSalePressed = { navigateTo(navController, Routes.SALES_LIST) },
+        onLogoutSuccess = { navigateTo(navController, Routes.LOGIN) }
+    ) {
+        content()
     }
 }
 
-private fun navigateToHome(navController: NavHostController) {
-    navController.navigate(Routes.HOME) {
-        popUpTo(navController.graph.findStartDestination().id) {
-            inclusive = true
-        }
-    }
-}
-
-private fun navigateToUserTypeChoose(navController: NavHostController) {
-    navController.navigate(Routes.USER_TYPE_CHOOSE) {
+private fun navigateTo(navController: NavHostController, route: String) {
+    navController.navigate(route) {
         popUpTo(navController.graph.findStartDestination().id) {
             inclusive = true
         }

@@ -54,6 +54,7 @@ fun Drawer(
     viewModel: DrawerViewModel = viewModel(factory = DrawerViewModel.Factory),
     onPizzaPressed: () -> Unit,
     onIngredientPressed: () -> Unit,
+    onSalePressed: () -> Unit,
     onLogoutSuccess: () -> Unit,
     content: @Composable () -> Unit
 ) {
@@ -75,6 +76,7 @@ fun Drawer(
                     currentRoute = currentRoute,
                     onPizzaPressed = onPizzaPressed,
                     onIngredientPressed = onIngredientPressed,
+                    onSalePressed = onSalePressed,
                     closeDrawer = { coroutineScope.launch { drawerState.close() } },
                     onLogout = viewModel::logout
                 )
@@ -92,6 +94,7 @@ private fun DrawerSheet(
     userLogged: String,
     onPizzaPressed: () -> Unit,
     onIngredientPressed: () -> Unit,
+    onSalePressed: () -> Unit,
     closeDrawer: () -> Unit,
     onLogout: () -> Unit
 ) {
@@ -120,7 +123,7 @@ private fun DrawerSheet(
             DrawerItem(
                 imageVector = Icons.Outlined.LocalPizza,
                 label = "Pizzas",
-                isSelected = currentRoute == Routes.PIZZAS_LIST,
+                isSelected = currentRoute == Routes.PIZZA_LIST,
                 onClick = {
                     closeDrawer()
                     onPizzaPressed()
@@ -135,19 +138,19 @@ private fun DrawerSheet(
                 label = "Vendas",
                 isSelected = currentRoute == Routes.SALES_LIST,
                 onClick = {
-                    // TODO
                     closeDrawer()
+                    onSalePressed()
                 }
             )
-            DrawerItem(
-                imageVector = Icons.Outlined.Assessment,
-                label = "Relatórios",
-                isSelected = currentRoute == Routes.REPORTS_LIST,
-                onClick = {
-                    // TODO
-                    closeDrawer()
-                }
-            )
+//            DrawerItem(
+//                imageVector = Icons.Outlined.Assessment,
+//                label = "Relatórios",
+//                isSelected = currentRoute == Routes.REPORTS_LIST,
+//                onClick = {
+//                    // TODO
+//                    closeDrawer()
+//                }
+//            )
         }
     }
 }
@@ -194,6 +197,7 @@ fun DrawerPreview() {
             userLogged = "CR7",
             onIngredientPressed = {},
             onPizzaPressed = {},
+            onSalePressed = {},
             closeDrawer = {},
             onLogout = {}
         )

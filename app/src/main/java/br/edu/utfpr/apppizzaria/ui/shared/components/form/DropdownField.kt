@@ -1,5 +1,6 @@
 package br.edu.utfpr.apppizzaria.ui.shared.components.form
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +24,9 @@ fun DropdownField(
     selectedValue: String,
     options: List<String>,
     label: String,
+    @StringRes
+    errorMessageCode: Int? = null,
+    enabled: Boolean = true,
     onValueChangedEvent: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -39,7 +43,9 @@ fun DropdownField(
             label = label,
             value = selectedValue,
             onValueChange = onValueChangedEvent,
+            errorMessageCode = errorMessageCode,
             readOnly = true,
+            enabled = enabled,
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             }

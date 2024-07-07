@@ -3,11 +3,14 @@ package br.edu.utfpr.apppizzaria.ui.ingredient.form
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -23,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
+import br.edu.utfpr.apppizzaria.ui.shared.components.Loading
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.CurrencyField
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.DropdownField
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.NumberField
@@ -65,19 +69,24 @@ fun IngredientFormScreen(
             )
         }
     ) { innerPadding ->
-        FormContent(
-            modifier = Modifier.padding(innerPadding),
-            formState = viewModel.uiState.formState,
-            onNameChanged = viewModel::onNameChanged,
-            onDescriptionChanged = viewModel::onDescriptionChanged,
-            onPriceChanged = viewModel::onPriceChanged,
-            onMeasureUnitChanged = viewModel::onMeasurementUnitChanged,
-            onQuantityChanged = viewModel::onQuantityChanged,
-            onClearValueName = viewModel::onClearValueName,
-            onClearValueDescription = viewModel::onClearValueDescription,
-            onClearValueQuantity = viewModel::onClearValueQuantity,
-            onClearValuePrice = viewModel::onClearValuePrice,
-        )
+        if (viewModel.uiState.isLoading) {
+            Loading(text = "Carregando ingrediente...")
+        } else {
+            FormContent(
+                modifier = Modifier.padding(innerPadding),
+                formState = viewModel.uiState.formState,
+                allFormDisable = viewModel.uiState.isSaving,
+                onNameChanged = viewModel::onNameChanged,
+                onDescriptionChanged = viewModel::onDescriptionChanged,
+                onPriceChanged = viewModel::onPriceChanged,
+                onMeasureUnitChanged = viewModel::onMeasurementUnitChanged,
+                onQuantityChanged = viewModel::onQuantityChanged,
+                onClearValueName = viewModel::onClearValueName,
+                onClearValueDescription = viewModel::onClearValueDescription,
+                onClearValueQuantity = viewModel::onClearValueQuantity,
+                onClearValuePrice = viewModel::onClearValuePrice,
+            )
+        }
     }
 }
 
@@ -99,19 +108,29 @@ private fun IngredientAppBar(
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
                 Icon(
-                    imageVector = Icons.Filled.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     tint = Color.White,
                     contentDescription = "Voltar"
                 )
             }
         },
         actions = {
-            IconButton(onClick = onSavePressed) {
-                Icon(
-                    imageVector = Icons.Filled.Save,
-                    tint = Color.White,
-                    contentDescription = "Salvar"
+            if (isSaving) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .padding(all = 16.dp),
+                    strokeWidth = 2.dp,
+                    color = Color.White
                 )
+            } else {
+                IconButton(onClick = onSavePressed) {
+                    Icon(
+                        imageVector = Icons.Filled.Save,
+                        tint = Color.White,
+                        contentDescription = "Salvar"
+                    )
+                }
             }
         }
     )
@@ -133,6 +152,7 @@ private fun IngredientAppBarPreview() {
 private fun FormContent(
     modifier: Modifier = Modifier,
     formState: FormState,
+    allFormDisable: Boolean = false,
     onNameChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onPriceChanged: (String) -> Unit,
@@ -154,38 +174,44 @@ private fun FormContent(
             value = formState.name.value,
             onValueChange = onNameChanged,
             errorMessageCode = formState.name.errorMessageCode,
-            onClearValue = onClearValueName
+            onClearValue = onClearValueName,
+            enabled = !allFormDisable
         )
         TextField(
             label = "Descrição",
             value = formState.description.value,
             onValueChange = onDescriptionChanged,
             errorMessageCode = formState.description.errorMessageCode,
-            onClearValue = onClearValueDescription
+            onClearValue = onClearValueDescription,
+            enabled = !allFormDisable
         )
         CurrencyField(
             label = "Preço",
             value = formState.price.value,
             onValueChange = onPriceChanged,
             errorMessageCode = formState.price.errorMessageCode,
-            onClearValue = onClearValuePrice
+            onClearValue = onClearValuePrice,
+            enabled = !allFormDisable
         )
         DropdownField(
             label = "Unidade de medida",
             selectedValue = formState.measurementUnit.value,
+            errorMessageCode = formState.measurementUnit.errorMessageCode,
             onValueChangedEvent = onMeasureUnitChanged,
             options = listOf(
                 MeasurementUnit.UN.description,
                 MeasurementUnit.LT.description,
                 MeasurementUnit.KG.description
-            )
+            ),
+            enabled = !allFormDisable
         )
         NumberField(
             label = "Quantidade",
             value = formState.quantity.value,
             onValueChange = onQuantityChanged,
             errorMessageCode = formState.quantity.errorMessageCode,
-            onClearValue = onClearValueQuantity
+            onClearValue = onClearValueQuantity,
+            enabled = !allFormDisable
         )
     }
 }

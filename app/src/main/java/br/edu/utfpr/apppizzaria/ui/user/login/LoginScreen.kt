@@ -2,34 +2,28 @@ package br.edu.utfpr.apppizzaria.ui.user.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.SupervisedUserCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import br.edu.utfpr.apppizzaria.data.user.local.UserType
-import br.edu.utfpr.apppizzaria.ui.ingredient.form.IngredientFormViewModel
 import br.edu.utfpr.apppizzaria.ui.shared.components.ClickableTextDefault
+import br.edu.utfpr.apppizzaria.ui.shared.components.Loading
+import br.edu.utfpr.apppizzaria.ui.shared.components.form.PasswordField
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.TextField
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 
@@ -37,7 +31,7 @@ import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory),
-    onClickNewRegister: (UserType) -> Unit,
+    onClickNewRegister: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
     LaunchedEffect(viewModel.uiState.loginSuccess) {
@@ -46,10 +40,35 @@ fun LoginScreen(
         }
     }
 
+    if (viewModel.uiState.isProcessing) {
+        Loading(text = "Efetuando login...")
+    } else {
+        LoginContent(
+            modifier = modifier.fillMaxSize(),
+            formState = viewModel.uiState.formState,
+            onLoginChanged = viewModel::onLoginChanged,
+            onPasswordChanged = viewModel::onPasswordChanged,
+            onClearLogin = viewModel::onClearLogin,
+            onLogin = viewModel::login,
+            onClickNewRegister = onClickNewRegister
+        )
+    }
+
+}
+
+@Composable
+fun LoginContent(
+    modifier: Modifier = Modifier,
+    formState: FormState,
+    onLoginChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onClearLogin: () -> Unit,
+    onLogin: () -> Unit,
+    onClickNewRegister: () -> Unit
+
+) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = modifier.padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -63,20 +82,27 @@ fun LoginScreen(
 
         TextField(
             label = "Usuário",
-            value = viewModel.uiState.formState.login.value,
-            onValueChange = viewModel::onLoginChanged,
-            onClearValue = {})
+            value = formState.login.value,
+            errorMessageCode = formState.login.errorMessageCode,
+            onValueChange = onLoginChanged,
+            onClearValue = onClearLogin,
+            keyboardCapitalization = KeyboardCapitalization.None
+        )
 
-        TextField(
+        PasswordField(
             label = "Senha",
-            value = viewModel.uiState.formState.password.value,
-            onValueChange = viewModel::onPasswordChanged,
-            onClearValue = {})
+            value = formState.password.value,
+            errorMessageCode = formState.password.errorMessageCode,
+            onValueChange = onPasswordChanged,
+            keyboardImeAction = ImeAction.Done
+        )
 
-        Button(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-            onClick = viewModel::login) {
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            onClick = onLogin
+        ) {
 
             Text(text = "Entrar")
         }
@@ -85,11 +111,9 @@ fun LoginScreen(
             modifier = Modifier.padding(top = 8.dp),
             preText = "Ainda não tem uma conta?",
             clickText = "Crie uma agora",
-            onClick = { onClickNewRegister(viewModel.userType!!) }
+            onClick = onClickNewRegister
         )
-
     }
-
 }
 
 @Preview(showBackground = true)

@@ -23,9 +23,9 @@ interface ApiIngredientService {
     suspend fun delete(@Path("id") id: UUID)
 
     @POST("v1/ingredients")
-    suspend fun insert(@Body ingredient: IngredientCreateRequest): List<IngredientDefaultResponse>
+    suspend fun insert(@Body ingredient: IngredientCreateRequest): IngredientDefaultResponse
 
     @PATCH("v1/ingredients/{id}")
     suspend fun update(@Body ingredient: IngredientUpdateRequest,
-                       @Path("id") id: UUID): List<IngredientDefaultResponse>
+                       @Path("id") id: UUID): IngredientDefaultResponse
 }

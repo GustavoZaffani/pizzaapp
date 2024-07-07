@@ -6,5 +6,4 @@ option java_multiple_files = true;
 message User {
   string id = 1;
   string name = 2;
-  string userType = 3;
 }

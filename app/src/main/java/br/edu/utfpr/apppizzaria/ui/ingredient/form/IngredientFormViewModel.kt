@@ -14,6 +14,8 @@ import br.edu.utfpr.apppizzaria.data.network.ApiService
 import br.edu.utfpr.apppizzaria.ui.Arguments
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormField
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
+import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateBigDecimalPositive
+import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateFieldRequired
 import br.edu.utfpr.apppizzaria.ui.shared.utils.Utils
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -22,7 +24,9 @@ data class FormState(
     val name: FormField = FormField(),
     val description: FormField = FormField(),
     val price: FormField = FormField(),
-    val measurementUnit: FormField = FormField(),
+    val measurementUnit: FormField = FormField(
+        value = MeasurementUnit.UN.description
+    ),
     val quantity: FormField = FormField(),
 ) {
     val isValid
@@ -56,9 +60,9 @@ class IngredientFormViewModel(
     var uiState: IngredientFormUiState by mutableStateOf(IngredientFormUiState())
 
     init {
-        if (ingredientId != Utils.GERERIC_UUID) {
+        if (ingredientId != null) {
             uiState = uiState.copy(
-                ingredientId = ingredientId!!
+                ingredientId = ingredientId
             )
             loadIngredient()
         }
@@ -100,7 +104,7 @@ class IngredientFormViewModel(
                 formState = uiState.formState.copy(
                     name = uiState.formState.name.copy(
                         value = name,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(name)
                     )
                 )
             )
@@ -113,7 +117,7 @@ class IngredientFormViewModel(
                 formState = uiState.formState.copy(
                     description = uiState.formState.description.copy(
                         value = description,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateFieldRequired(description)
                     )
                 )
             )
@@ -126,11 +130,15 @@ class IngredientFormViewModel(
                 formState = uiState.formState.copy(
                     price = uiState.formState.price.copy(
                         value = price,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validatePrice(price)
                     )
                 )
             )
         }
+    }
+
+    private fun validatePrice(price: String): Int? {
+        return validateFieldRequired(price) ?: validateBigDecimalPositive(price)
     }
 
     fun onMeasurementUnitChanged(measurementUnit: String) {
@@ -138,8 +146,7 @@ class IngredientFormViewModel(
             uiState = uiState.copy(
                 formState = uiState.formState.copy(
                     measurementUnit = uiState.formState.measurementUnit.copy(
-                        value = measurementUnit,
-//                        errorMessageCode = validateNome(nome)
+                        value = measurementUnit
                     )
                 )
             )
@@ -152,11 +159,15 @@ class IngredientFormViewModel(
                 formState = uiState.formState.copy(
                     quantity = uiState.formState.quantity.copy(
                         value = quantity,
-//                        errorMessageCode = validateNome(nome)
+                        errorMessageCode = validateQuantity(quantity)
                     )
                 )
             )
         }
+    }
+
+    private fun validateQuantity(quantity: String): Int? {
+        return validateFieldRequired(quantity) ?: validateBigDecimalPositive(quantity)
     }
 
     fun onClearValueName() {
@@ -200,6 +211,10 @@ class IngredientFormViewModel(
     }
 
     fun save() {
+        if (!isValidForm()) {
+            return
+        }
+
         uiState = uiState.copy(
             isSaving = true,
             hasErrorSaving = false
@@ -212,7 +227,6 @@ class IngredientFormViewModel(
                 } else {
                     ApiService.ingredients.update(buildObjectToUpdate(), uiState.ingredientId)
                 }
-
 
                 uiState.copy(
                     isSaving = false,
@@ -246,21 +260,24 @@ class IngredientFormViewModel(
         )
     }
 
-//    fun isValidForm(): Boolean {
-//        uiState = uiState.copy(
-//            formState = uiState.formState.copy(
-//                nome = uiState.formState.nome.copy(
-//                    errorMessageCode = validateNome(uiState.formState.nome.value)
-//                ),
-//                cpf = uiState.formState.cpf.copy(
-//                    errorMessageCode = validateCpf(uiState.formState.cpf.value)
-//                ),
-//                telefone = uiState.formState.telefone.copy(
-//                    errorMessageCode = validateTelefone(uiState.formState.telefone.value)
-//                )
-//            )
-//        )
-//
-//        return uiState.formState.isValid
-//    }
+    private fun isValidForm(): Boolean {
+        uiState = uiState.copy(
+            formState = uiState.formState.copy(
+                name = uiState.formState.name.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.name.value)
+                ),
+                description = uiState.formState.description.copy(
+                    errorMessageCode = validateFieldRequired(uiState.formState.description.value)
+                ),
+                price = uiState.formState.price.copy(
+                    errorMessageCode = validatePrice(uiState.formState.price.value)
+                ),
+                quantity = uiState.formState.quantity.copy(
+                    errorMessageCode = validateQuantity(uiState.formState.quantity.value)
+                )
+            )
+        )
+
+        return uiState.formState.isValid
+    }
 }

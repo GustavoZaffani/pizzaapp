@@ -1,4 +1,4 @@
-package br.edu.utfpr.apppizzaria.data.network
+package br.edu.utfpr.apppizzaria.data.network.serializers
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
