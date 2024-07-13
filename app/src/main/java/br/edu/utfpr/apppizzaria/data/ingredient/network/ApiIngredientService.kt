@@ -20,9 +20,6 @@ interface ApiIngredientService {
     @GET("v1/ingredients/{id}")
     suspend fun findById(@Path("id") id: UUID): IngredientDefaultResponse
 
-    @DELETE("v1/ingredients/{id}")
-    suspend fun delete(@Path("id") id: UUID)
-
     @POST("v1/ingredients")
     suspend fun insert(@Body ingredient: IngredientCreateRequest): IngredientDefaultResponse
 

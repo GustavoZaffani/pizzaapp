@@ -25,11 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.data.pizzeria.enumerations.State
 import br.edu.utfpr.apppizzaria.ui.shared.components.ErrorDetails
 import br.edu.utfpr.apppizzaria.ui.shared.components.SectionHeader
@@ -56,7 +58,7 @@ fun PizzeriaRegisterScreen(
         if (viewModel.uiState.pizzeriaSaved) {
             Toast.makeText(
                 context,
-                "Pizzaria registrada com sucesso. Por favor, efetue o login.",
+                context.getString(R.string.pizzeria_register_pizzeria_save_success),
                 Toast.LENGTH_LONG
             ).show()
             onRegisterSaved()
@@ -66,7 +68,7 @@ fun PizzeriaRegisterScreen(
     LaunchedEffect(snackbarHostState, viewModel.uiState.hasUnexpectedError) {
         if (viewModel.uiState.hasUnexpectedError) {
             snackbarHostState.showSnackbar(
-                "Não foi possível registrar a pizzaria. Aguarde um momento e tente novamente."
+                context.getString(R.string.pizzeria_register_unexpected_error)
             )
         }
     }
@@ -94,7 +96,8 @@ fun PizzeriaRegisterScreen(
         ) {
 
             WelcomeCard(
-                icon = Icons.Outlined.LocalPizza
+                icon = Icons.Outlined.LocalPizza,
+                user = viewModel.uiState.formState.name.value
             )
             FormContent(
                 formState = viewModel.uiState.formState,
@@ -135,7 +138,7 @@ fun PizzeriaRegisterScreen(
                         color = Color.White
                     )
                 } else {
-                    Text(text = "Registrar")
+                    Text(text = stringResource(R.string.generic_to_register))
                 }
 
             }
@@ -187,10 +190,10 @@ private fun FormContent(
             .padding(vertical = 16.dp)
     ) {
         SectionHeader(
-            text = "Dados gerais"
+            text = stringResource(R.string.pizzeria_register_section_general_data)
         )
         TextField(
-            label = "Nome",
+            label = stringResource(R.string.pizzeria_register_field_name),
             value = formState.name.value,
             onValueChange = onNameChanged,
             errorMessageCode = formState.name.errorMessageCode,
@@ -198,7 +201,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         PhoneField(
-            label = "Telefone",
+            label = stringResource(R.string.pizzeria_register_field_phone),
             value = formState.phone.value,
             onValueChange = onPhoneChanged,
             errorMessageCode = formState.phone.errorMessageCode,
@@ -206,7 +209,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         EmailField(
-            label = "Email",
+            label = stringResource(R.string.pizzeria_register_field_email),
             value = formState.email.value,
             onValueChange = onEmailChanged,
             errorMessageCode = formState.email.errorMessageCode,
@@ -215,10 +218,10 @@ private fun FormContent(
         )
 
         SectionHeader(
-            text = "Dados do endereço"
+            text = stringResource(R.string.pizzeria_register_section_address)
         )
         ZipCodeField(
-            label = "CEP",
+            label = stringResource(R.string.pizzeria_register_field_zip_code),
             value = formState.zipCode.value,
             onValueChange = onZipCodeChanged,
             errorMessageCode = formState.zipCode.errorMessageCode,
@@ -226,7 +229,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         TextField(
-            label = "Rua",
+            label = stringResource(R.string.pizzeria_register_field_street),
             value = formState.street.value,
             onValueChange = onStreetChanged,
             errorMessageCode = formState.street.errorMessageCode,
@@ -235,7 +238,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         TextField(
-            label = "Bairro",
+            label = stringResource(R.string.pizzeria_register_field_neighborhood),
             value = formState.neighborhood.value,
             onValueChange = onNeighborhoodChanged,
             errorMessageCode = formState.neighborhood.errorMessageCode,
@@ -244,7 +247,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         TextField(
-            label = "Cidade",
+            label = stringResource(R.string.pizzeria_register_field_city),
             value = formState.city.value,
             onValueChange = onCityChanged,
             errorMessageCode = formState.city.errorMessageCode,
@@ -253,7 +256,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         TextField(
-            label = "Número",
+            label = stringResource(R.string.pizzeria_register_field_number),
             value = formState.number.value,
             onValueChange = onNumberChanged,
             errorMessageCode = formState.number.errorMessageCode,
@@ -262,13 +265,13 @@ private fun FormContent(
         )
         DropdownField(
             selectedValue = formState.state.value,
-            label = formState.state.value,
+            label = stringResource(R.string.pizzeria_register_field_state),
             onValueChangedEvent = onStateChanged,
             options = State.getDescriptionList(),
             enabled = !allFormDisable
         )
         TextField(
-            label = "Complemento",
+            label = stringResource(R.string.pizzeria_register_field_complement),
             value = formState.complement.value,
             onValueChange = onComplementChanged,
             errorMessageCode = formState.complement.errorMessageCode,
@@ -277,10 +280,10 @@ private fun FormContent(
         )
 
         SectionHeader(
-            text = "Dados de autenticação"
+            text = stringResource(R.string.pizzeria_register_section_auth)
         )
         TextField(
-            label = "Login",
+            label = stringResource(R.string.pizzeria_register_field_login),
             value = formState.login.value,
             onValueChange = onLoginChanged,
             errorMessageCode = formState.login.errorMessageCode,
@@ -288,7 +291,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         PasswordField(
-            label = "Senha",
+            label = stringResource(R.string.pizzeria_register_field_password),
             value = formState.password.value,
             onValueChange = onPasswordChanged,
             errorMessageCode = formState.password.errorMessageCode,

@@ -30,10 +30,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
 import br.edu.utfpr.apppizzaria.ui.shared.components.DefaultActionFormToolbar
@@ -62,7 +65,7 @@ fun PizzaFormScreen(
         if (viewModel.uiState.pizzaSaved) {
             Toast.makeText(
                 context,
-                "Pizza registrada com sucesso.",
+                context.getString(R.string.pizza_form_save_success),
                 Toast.LENGTH_LONG
             ).show()
             onPizzaSaved()
@@ -72,7 +75,7 @@ fun PizzaFormScreen(
     LaunchedEffect(snackbarHostState, viewModel.uiState.hasUnexpectedError) {
         if (viewModel.uiState.hasUnexpectedError) {
             snackbarHostState.showSnackbar(
-                "Não foi possível salvar o ingrediente. Aguarde um momento e tente novamente."
+                context.getString(R.string.pizza_form_unexpected_error_save)
             )
         }
     }
@@ -104,7 +107,9 @@ fun PizzaFormScreen(
     ) { innerPadding ->
         if (viewModel.uiState.hasAnyLoading) {
             val textLoading =
-                if (viewModel.uiState.isLoadingPizza) "Carregando pizza..." else "Buscando ingredientes..."
+                if (viewModel.uiState.isLoadingPizza) stringResource(R.string.pizza_form_loading_pizza) else stringResource(
+                    R.string.pizza_form_loading_ingredients
+                )
             Loading(
                 modifier = modifier.padding(innerPadding),
                 text = textLoading
@@ -113,13 +118,13 @@ fun PizzaFormScreen(
             ErrorDefault(
                 modifier = Modifier.padding(innerPadding),
                 onRetry = viewModel::loadPizza,
-                text = "Erro ao carregar a pizza"
+                text = stringResource(R.string.pizza_form_loading_pizza_error)
             )
         } else if (viewModel.uiState.hasErrorLoadingIngredients) {
             ErrorDefault(
                 modifier = Modifier.padding(innerPadding),
                 onRetry = viewModel::loadInfoToAddPizza,
-                text = "Erro ao carregar os ingredientes da pizza"
+                text = stringResource(R.string.pizza_form_loading_ingredients_error)
             )
         } else {
             FormContent(
@@ -147,7 +152,7 @@ private fun PizzaAppBar(
     onBackPressed: () -> Unit,
     onSavePressed: () -> Unit
 ) {
-    val title = if (isNewPizza) "Nova pizza" else "Editar pizza"
+    val title = if (isNewPizza) stringResource(R.string.pizza_new_pizza) else stringResource(R.string.pizza_edit_pizza)
 
     AppBar(
         modifier = modifier,
@@ -158,7 +163,7 @@ private fun PizzaAppBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     tint = Color.White,
-                    contentDescription = "Voltar"
+                    contentDescription = stringResource(R.string.generic_to_back)
                 )
             }
         },
@@ -207,11 +212,11 @@ private fun FormContent(
             .verticalScroll(rememberScrollState())
     ) {
         SectionHeader(
-            text = "Dados gerais"
+            text = stringResource(R.string.pizza_form_section_general_data)
         )
 
         TextField(
-            label = "Nome",
+            label = stringResource(R.string.pizza_form_field_name),
             value = formState.name.value,
             onValueChange = onNameChanged,
             errorMessageCode = formState.name.errorMessageCode,
@@ -219,23 +224,24 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         CurrencyField(
-            label = "Preço",
+            label = stringResource(R.string.pizza_form_field_price),
             value = formState.price.value,
             onValueChange = onPriceChanged,
             errorMessageCode = formState.price.errorMessageCode,
             onClearValue = onClearValuePrice,
-            enabled = !allFormDisable
+            enabled = !allFormDisable,
+            keyboardImeAction = ImeAction.Done
         )
 
 
         SectionHeader(
-            text = "Ingredientes"
+            text = stringResource(R.string.pizza_form_section_ingredients)
         )
 
         if (formState.ingredientsAdded.isEmpty()) {
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                text = "Nenhum ingrediente adicionado",
+                text = stringResource(R.string.pizza_form_no_ingredients_informed),
                 color = MaterialTheme.colorScheme.error,
                 fontStyle = FontStyle.Italic
             )
@@ -254,7 +260,7 @@ private fun FormContent(
                     .padding(horizontal = 16.dp),
                 onClick = { showModal = true }
             ) {
-                Text(text = "Adicionar ingredientes")
+                Text(text = stringResource(R.string.pizza_form_add_ingredients))
             }
         }
 

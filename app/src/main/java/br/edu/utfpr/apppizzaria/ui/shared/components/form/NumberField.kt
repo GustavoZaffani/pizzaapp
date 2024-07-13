@@ -3,15 +3,16 @@ package br.edu.utfpr.apppizzaria.ui.shared.components.form
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.MonetizationOn
 import androidx.compose.material.icons.outlined.Pin
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 
 @Composable
@@ -36,12 +37,18 @@ fun NumberField(
         keyboardImeAction = keyboardImeAction,
         keyboardType = KeyboardType.Decimal,
         leadingIcon = {
-            Icon(imageVector = Icons.Outlined.Pin, contentDescription = "Dinheiro")
+            Icon(
+                imageVector = Icons.Outlined.Pin,
+                contentDescription = stringResource(R.string.generic_number)
+            )
 
         },
         trailingIcon = {
             IconButton(onClick = onClearValue) {
-                Icon(imageVector = Icons.Outlined.Clear, contentDescription = "Limpar")
+                Icon(
+                    imageVector = Icons.Outlined.Clear,
+                    contentDescription = stringResource(R.string.generic_to_clear)
+                )
             }
         }
     )

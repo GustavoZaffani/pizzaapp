@@ -1,5 +1,136 @@
 <resources>
     <string name="app_name">Pizza\'s App</string>
+
+    <!-- Validations messages -->
     <string name="field_required">O campo é obrigatório</string>
-    <string name="field_must_be_greater_than_zero">O valor do campo deve ser maior que 0</string>
+
+    <!-- Ingredient -->
+    <string name="ingredient_new_ingredient">Novo ingrediente</string>
+    <string name="ingredient_edit_ingredient">Editar ingrediente</string>
+
+    <!-- Ingredient's List -->
+    <string name="ingredient_list_loading_ingredients">Carregando ingredientes</string>
+    <string name="ingredient_list_loading_error">Erro ao carregar os ingredientes</string>
+    <string name="ingredient_list_appbar_title">Ingredientes</string>
+    <string name="ingredient_list_filter_ingredient_name">Nome do ingrediente</string>
+    <string name="ingredient_list_empty_list">Nenhum ingrediente cadastrado</string>
+
+    <!-- Ingredient's Form -->
+    <string name="ingredient_form_save_with_success">Ingrediente registrado com sucesso</string>
+    <string name="ingredient_form_unexpected_error_on_save">Não foi possível salvar o ingrediente. Aguarde um momento e tente novamente</string>
+    <string name="ingredient_form_loading_ingredient">Carregando ingrediente</string>
+    <string name="ingredient_form_loading_error">Erro ao carregar o ingrediente</string>
+    <string name="ingredient_form_field_name">Nome</string>
+    <string name="ingredient_form_field_description">Descrição</string>
+    <string name="ingredient_form_field_price">Preço</string>
+    <string name="ingredient_form_field_measurement_unit">Unidade de medida</string>
+    <string name="ingredient_form_field_quantity">Quantidade</string>
+
+    <!-- Pizza -->
+    <string name="pizza_new_pizza">Nova pizza</string>
+    <string name="pizza_edit_pizza">Editar pizza</string>
+
+    <!-- Pizza's List -->
+    <string name="pizza_list_delete_success">Pizza removida com sucesso</string>
+    <string name="pizza_list_question_for_delete">Deseja remover a pizza?</string>
+    <string name="pizza_list_alert_for_delete">Caso seguir, a pizza será removida e não poderá ser recuperada novamente</string>
+    <string name="pizza_list_deleting_pizza">Removendo pizza</string>
+    <string name="pizza_list_loading_pizzas">Carregando pizzas</string>
+    <string name="pizza_list_loading_error">Erro ao carregar as pizzas</string>
+    <string name="pizza_list_deleting_error">Erro ao remover a pizza</string>
+    <string name="pizza_list_empty_list">Nenhuma pizza cadastrada</string>
+    <string name="pizza_list_ingredients_card_title">"Ingredientes: "</string>
+    <string name="pizza_list_appbar_title">Pizzas</string>
+
+    <!-- Pizza's Form -->
+    <string name="pizza_form_save_success">Pizza registrada com sucesso</string>
+    <string name="pizza_form_unexpected_error_save">Não foi possível salvar a pizza. Aguarde um momento e tente novamente</string>
+    <string name="pizza_form_loading_pizza">Carregando pizza</string>
+    <string name="pizza_form_loading_ingredients">Buscando ingredientes</string>
+    <string name="pizza_form_loading_pizza_error">Erro ao carregar a pizza</string>
+    <string name="pizza_form_loading_ingredients_error">Erro ao carregar os ingredientes da pizza</string>
+    <string name="pizza_form_section_general_data">Dados gerais</string>
+    <string name="pizza_form_field_name">Nome</string>
+    <string name="pizza_form_field_price">Preço</string>
+    <string name="pizza_form_section_ingredients">Ingredientes</string>
+    <string name="pizza_form_no_ingredients_informed">Nenhum ingrediente adicionado</string>
+    <string name="pizza_form_add_ingredients">Adicionar ingredientes</string>
+
+    <!-- Sale's List -->
+    <string name="sales_list_loading_sales">Carregando vendas</string>
+    <string name="sales_list_loading_error">Erro ao carregar as vendas</string>
+    <string name="sales_list_empty_list">Nenhuma venda localizada</string>
+    <string name="sales_list_pizzas">"Pizzas: "</string>
+    <string name="sales_list_appbar_title">Vendas</string>
+
+    <!-- Drawer -->
+    <string name="drawer_section_registers">Cadastros</string>
+    <string name="drawer_section_analytics">Análise</string>
+    <string name="drawer_menu_pizza">Pizzas</string>
+    <string name="drawer_menu_ingredients">Ingredientes</string>
+    <string name="drawer_menu_sales">Vendas</string>
+
+    <!-- Login -->
+    <string name="login_error_login">Não foi possível efetuar o login. Aguarde um momento e tente novamente</string>
+    <string name="login_loading">Efetuando login</string>
+    <string name="login_field_user">Usuário</string>
+    <string name="login_field_password">Senha</string>
+    <string name="login_new_register_title">Ainda não tem uma conta?</string>
+    <string name="login_new_register_action">Crie uma agora</string>
+
+    <!-- Generic -->
+    <string name="generic_to_cancel">Cancelar</string>
+    <string name="generic_to_filter">Filtrar</string>
+    <string name="generic_to_update">Atualizar</string>
+    <string name="generic_open_menu">Abrir menu</string>
+    <string name="generic_filter">Filtro</string>
+    <string name="generic_filters">Filtros</string>
+    <string name="generic_to_back">Voltar</string>
+    <string name="generic_to_leave">Sair</string>
+    <string name="generic_welcome">Bem-vindo</string>
+    <string name="generic_to_remove">Remover</string>
+    <string name="generic_to_add">Adicionar</string>
+    <string name="generic_to_enter">Entrar</string>
+    <string name="generic_logo">Logo</string>
+    <string name="generic_to_clear">Limpar</string>
+    <string name="generic_email">Email</string>
+    <string name="generic_phone">Telefone</string>
+    <string name="generic_password">Senha</string>
+    <string name="generic_number">Número</string>
+    <string name="generic_zip_code">CEP</string>
+    <string name="generic_to_save">Salvar</string>
+    <string name="generic_to_confirm">Confirmar</string>
+    <string name="generic_money">Dinheiro</string>
+
+    <!-- Welcome card -->
+    <string name="welcome_card_make_register_description">Por favor, faça o seu cadastro</string>
+
+    <!-- Pizzeria's register -->
+    <string name="pizzeria_register_pizzeria_save_success">Pizzaria registrada com sucesso. Por favor, efetue o login</string>
+    <string name="pizzeria_register_unexpected_error">Não foi possível registrar a pizzaria. Aguarde um momento e tente novamente</string>
+    <string name="generic_to_register">Registrar</string>
+    <string name="pizzeria_register_section_general_data">Dados gerais</string>
+    <string name="pizzeria_register_field_name">Nome</string>
+    <string name="pizzeria_register_field_phone">Telefone</string>
+    <string name="pizzeria_register_field_email">Email</string>
+    <string name="pizzeria_register_section_address">Dados do endereço</string>
+    <string name="pizzeria_register_field_zip_code">CEP</string>
+    <string name="pizzeria_register_field_street">Rua</string>
+    <string name="pizzeria_register_field_neighborhood">Bairro</string>
+    <string name="pizzeria_register_field_city">Cidade</string>
+    <string name="pizzeria_register_field_number">Número</string>
+    <string name="pizzeria_register_field_state">Estado</string>
+    <string name="pizzeria_register_field_complement">Complemento</string>
+    <string name="pizzeria_register_section_auth">Dados de autenticação</string>
+    <string name="pizzeria_register_field_login">Login</string>
+    <string name="pizzeria_register_field_password">Senha</string>
+
+    <!-- Error default -->
+    <string name="error_default_content_description_icon">Erro ao processar requisição ao servidor</string>
+    <string name="error_default_try_again">Tentar novamente</string>
+    <string name="error_default_try_again_message">Aguarde um momento e tente novamente</string>
+
+    <!-- Empty list -->
+    <string name="empty_list_content_description_icon">ícone</string>
+    <string name="empty_list_no_register_found">Nenhum registro encontrado</string>
 </resources>

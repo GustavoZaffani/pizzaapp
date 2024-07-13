@@ -8,10 +8,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.ui.shared.visualtransformations.PhoneVisualTransformation
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 
@@ -44,7 +46,7 @@ fun PhoneField(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Outlined.Phone,
-                contentDescription = "Telefone"
+                contentDescription = stringResource(R.string.generic_phone)
             )
 
         },
@@ -52,7 +54,7 @@ fun PhoneField(
             IconButton(onClick = onClearValue) {
                 Icon(
                     imageVector = Icons.Outlined.Clear,
-                    contentDescription = "Limpar"
+                    contentDescription = stringResource(R.string.generic_to_clear)
                 )
             }
         },

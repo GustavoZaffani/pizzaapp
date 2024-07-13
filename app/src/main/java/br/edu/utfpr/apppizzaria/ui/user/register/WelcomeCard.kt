@@ -19,9 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 
 @Composable
@@ -30,7 +32,10 @@ fun WelcomeCard(
     icon: ImageVector,
     user: String = ""
 ) {
-    val welcomeText = if (user.isNotBlank()) "Bem-vindo, $user!" else "Bem-vindo!"
+    val welcomeText =
+        if (user.isNotBlank()) "${stringResource(R.string.generic_welcome)}, $user!" else "${
+            stringResource(R.string.generic_welcome)
+        }!"
 
     Card(
         shape = RoundedCornerShape(8.dp),
@@ -63,7 +68,7 @@ fun WelcomeCard(
                     color = Color.White
                 )
                 Text(
-                    text = "Por favor, faça o seu cadastro",
+                    text = stringResource(R.string.welcome_card_make_register_description),
                     fontSize = 14.sp,
                     color = Color.White
                 )

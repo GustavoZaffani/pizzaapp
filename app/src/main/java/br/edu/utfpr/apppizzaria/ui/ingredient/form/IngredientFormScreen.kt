@@ -22,9 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
 import br.edu.utfpr.apppizzaria.ui.shared.components.DefaultActionFormToolbar
@@ -52,7 +55,7 @@ fun IngredientFormScreen(
         if (viewModel.uiState.ingredientSaved) {
             Toast.makeText(
                 context,
-                "Ingrediente registrado com sucesso.",
+                context.getString(R.string.ingredient_form_save_with_success),
                 Toast.LENGTH_LONG
             ).show()
             onIngredientSaved()
@@ -62,7 +65,7 @@ fun IngredientFormScreen(
     LaunchedEffect(snackbarHostState, viewModel.uiState.hasUnexpectedError) {
         if (viewModel.uiState.hasUnexpectedError) {
             snackbarHostState.showSnackbar(
-                "Não foi possível salvar o ingrediente. Aguarde um momento e tente novamente."
+                context.getString(R.string.ingredient_form_unexpected_error_on_save)
             )
         }
     }
@@ -93,12 +96,12 @@ fun IngredientFormScreen(
         }
     ) { innerPadding ->
         if (viewModel.uiState.isLoading) {
-            Loading(text = "Carregando ingrediente...")
+            Loading(text = stringResource(R.string.ingredient_form_loading_ingredient))
         } else if (viewModel.uiState.hasErrorLoading) {
             ErrorDefault(
                 modifier = Modifier.padding(innerPadding),
                 onRetry = viewModel::loadIngredient,
-                text = "Erro ao carregar o ingrediente"
+                text = stringResource(R.string.ingredient_form_loading_error)
             )
         } else {
             FormContent(
@@ -129,7 +132,10 @@ private fun IngredientAppBar(
     onBackPressed: () -> Unit,
     onSavePressed: () -> Unit
 ) {
-    val title = if (isNewIngredient) "Novo ingrediente" else "Editar ingrediente"
+    val title =
+        if (isNewIngredient) stringResource(R.string.ingredient_new_ingredient) else stringResource(
+            R.string.ingredient_edit_ingredient
+        )
 
     AppBar(
         modifier = modifier,
@@ -140,7 +146,7 @@ private fun IngredientAppBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     tint = Color.White,
-                    contentDescription = "Voltar"
+                    contentDescription = stringResource(R.string.generic_to_back)
                 )
             }
         },
@@ -188,7 +194,7 @@ private fun FormContent(
             .verticalScroll(rememberScrollState())
     ) {
         TextField(
-            label = "Nome",
+            label = stringResource(R.string.ingredient_form_field_name),
             value = formState.name.value,
             onValueChange = onNameChanged,
             errorMessageCode = formState.name.errorMessageCode,
@@ -196,7 +202,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         TextField(
-            label = "Descrição",
+            label = stringResource(R.string.ingredient_form_field_description),
             value = formState.description.value,
             onValueChange = onDescriptionChanged,
             errorMessageCode = formState.description.errorMessageCode,
@@ -204,7 +210,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         CurrencyField(
-            label = "Preço",
+            label = stringResource(R.string.ingredient_form_field_price),
             value = formState.price.value,
             onValueChange = onPriceChanged,
             errorMessageCode = formState.price.errorMessageCode,
@@ -212,7 +218,7 @@ private fun FormContent(
             enabled = !allFormDisable
         )
         DropdownField(
-            label = "Unidade de medida",
+            label = stringResource(R.string.ingredient_form_field_measurement_unit),
             selectedValue = formState.measurementUnit.value,
             errorMessageCode = formState.measurementUnit.errorMessageCode,
             onValueChangedEvent = onMeasureUnitChanged,
@@ -224,12 +230,13 @@ private fun FormContent(
             enabled = !allFormDisable && !isEditing
         )
         NumberField(
-            label = "Quantidade",
+            label = stringResource(R.string.ingredient_form_field_quantity),
             value = formState.quantity.value,
             onValueChange = onQuantityChanged,
             errorMessageCode = formState.quantity.errorMessageCode,
             onClearValue = onClearValueQuantity,
-            enabled = !allFormDisable && !isEditing
+            enabled = !allFormDisable && !isEditing,
+            keyboardImeAction = ImeAction.Done
         )
     }
 }

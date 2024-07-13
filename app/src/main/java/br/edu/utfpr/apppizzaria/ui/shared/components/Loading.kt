@@ -31,7 +31,7 @@ fun Loading(
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
-        AnimationTypingText(text = text, typingSpeed = 100L)
+        AnimationTypingText(text = "$text...", typingSpeed = 100L)
     }
 }
 
@@ -40,7 +40,7 @@ fun Loading(
 private fun LoadingPreview() {
     AppPizzariaTheme {
         Loading(
-            text = "Carregando..."
+            text = "Carregando"
         )
     }
 }

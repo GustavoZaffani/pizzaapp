@@ -27,12 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.data.pizza.response.PizzaDefaultResponse
 import br.edu.utfpr.apppizzaria.data.pizza.response.PizzaIngredientDefaultResponse
 import br.edu.utfpr.apppizzaria.extensions.formatToCurrency
@@ -60,7 +62,7 @@ fun PizzaListScreen(
         if (viewModel.uiState.pizzaDeleted) {
             Toast.makeText(
                 context,
-                "Pizza removida com sucesso.",
+                context.getString(R.string.pizza_list_delete_success),
                 Toast.LENGTH_LONG
             ).show()
 
@@ -70,8 +72,8 @@ fun PizzaListScreen(
 
     if (viewModel.uiState.showConfirmationDialog) {
         ConfirmationDialog(
-            title = "Deseja remover a pizza?",
-            text = "Caso seguir, a pizza será removida e não poderá ser recuperada novamente",
+            title = stringResource(R.string.pizza_list_question_for_delete),
+            text = stringResource(R.string.pizza_list_alert_for_delete),
             onDismiss = viewModel::dismissConfirmationDialog,
             onConfirm = viewModel::deletePizza
         )
@@ -91,7 +93,7 @@ fun PizzaListScreen(
                 FloatingActionButton(onClick = onNewPizzaPressed) {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = "Nova pizza"
+                        contentDescription = stringResource(R.string.pizza_new_pizza)
                     )
                 }
             }
@@ -99,7 +101,9 @@ fun PizzaListScreen(
     ) { innerPadding ->
         if (viewModel.uiState.hasAnyLoading) {
             val loadingText =
-                if (viewModel.uiState.loading) "Carregando pizzas..." else "Removendo pizza..."
+                if (viewModel.uiState.loading) stringResource(R.string.pizza_list_loading_pizzas) else stringResource(
+                    R.string.pizza_list_deleting_pizza
+                )
             Loading(
                 modifier = Modifier.padding(innerPadding),
                 text = loadingText,
@@ -108,13 +112,13 @@ fun PizzaListScreen(
             ErrorDefault(
                 modifier = Modifier.padding(innerPadding),
                 onRetry = viewModel::loadPizzas,
-                text = "Erro ao carregar as pizzas"
+                text = stringResource(R.string.pizza_list_loading_error)
             )
         } else if (viewModel.uiState.hasErrorDeleting) {
             ErrorDefault(
                 modifier = Modifier.padding(innerPadding),
                 onRetry = viewModel::deletePizza,
-                text = "Erro ao remover a pizza"
+                text = stringResource(R.string.pizza_list_deleting_error)
             )
         } else {
             PizzaList(
@@ -137,7 +141,7 @@ private fun PizzaList(
     if (pizzas.isEmpty()) {
         EmptyList(
             modifier = modifier,
-            description = "Nenhuma pizza cadastrada"
+            description = stringResource(R.string.pizza_list_empty_list)
         )
     } else {
         PizzaListContent(
@@ -204,9 +208,10 @@ private fun PizzaListContent(
                 ) {
                     Row {
                         Text(
-                            text = "Ingredientes: ",
+                            text = stringResource(R.string.pizza_list_ingredients_card_title),
                             fontSize = 16.sp,
-                            fontStyle = FontStyle.Italic)
+                            fontStyle = FontStyle.Italic
+                        )
                         Text(
                             text = pizza.ingredientList,
                             fontSize = 16.sp,
@@ -279,14 +284,14 @@ private fun PizzaAppBar(
 ) {
     AppBar(
         modifier = modifier,
-        title = "Pizzas",
+        title = stringResource(R.string.pizza_list_appbar_title),
         showActions = showActions,
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     tint = Color.White,
-                    contentDescription = "Abrir menu"
+                    contentDescription = stringResource(R.string.generic_open_menu)
                 )
             }
         },
@@ -295,7 +300,7 @@ private fun PizzaAppBar(
                 Icon(
                     imageVector = Icons.Filled.Refresh,
                     tint = Color.White,
-                    contentDescription = "Atualizar"
+                    contentDescription = stringResource(R.string.generic_to_update)
                 )
             }
         }

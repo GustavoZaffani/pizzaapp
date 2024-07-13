@@ -21,10 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.ui.shared.components.CardList
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
@@ -72,13 +74,13 @@ fun SelectableIngredientList(
                     ) {
                         ButtonChangeQuantity(
                             icon = Icons.Outlined.Remove,
-                            descriptionIcon = "Remover",
+                            descriptionIcon = stringResource(R.string.generic_to_remove),
                             onClick = { onRemoveIngredient(ingredient) }
                         )
                         Text(text = "${ingredient.quantity} ${ingredient.measurementUnit}")
                         ButtonChangeQuantity(
                             icon = Icons.Outlined.Add,
-                            descriptionIcon = "Adicionar",
+                            descriptionIcon = stringResource(R.string.generic_to_add),
                             onClick = { onAddIngredient(ingredient) }
                         )
                     }
@@ -107,7 +109,7 @@ fun ButtonChangeQuantity(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun SelectableIngredientListPreview() {
     AppPizzariaTheme {

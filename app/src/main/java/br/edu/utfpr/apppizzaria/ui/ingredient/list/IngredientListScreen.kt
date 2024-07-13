@@ -32,12 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.data.ingredient.response.IngredientDefaultResponse
 import br.edu.utfpr.apppizzaria.extensions.formatToCurrency
@@ -89,7 +91,7 @@ fun IngredientListScreen(
                 FloatingActionButton(onClick = onNewIngredientPressed) {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = "Novo ingrediente"
+                        contentDescription = stringResource(R.string.ingredient_new_ingredient)
                     )
                 }
             }
@@ -98,13 +100,13 @@ fun IngredientListScreen(
         if (viewModel.uiState.loading) {
             Loading(
                 modifier = Modifier.padding(innerPadding),
-                text = "Carregando ingredientes...",
+                text = stringResource(R.string.ingredient_list_loading_ingredients),
             )
         } else if (viewModel.uiState.hasError) {
             ErrorDefault(
                 modifier = Modifier.padding(innerPadding),
                 onRetry = viewModel::loadIngredients,
-                text = "Erro ao carregar os ingredientes"
+                text = stringResource(R.string.ingredient_list_loading_error)
             )
         } else {
             IngredientList(
@@ -125,7 +127,7 @@ private fun IngredientList(
     if (ingredients.isEmpty()) {
         EmptyList(
             modifier = modifier,
-            description = "Nenhum ingrediente cadastrado"
+            description = stringResource(R.string.ingredient_list_empty_list)
         )
     } else {
         IngredientListContent(
@@ -266,14 +268,14 @@ private fun IngredientAppBar(
 ) {
     AppBar(
         modifier = modifier,
-        title = "Ingredientes",
+        title = stringResource(R.string.ingredient_list_appbar_title),
         showActions = showActions,
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     tint = Color.White,
-                    contentDescription = "Abrir menu"
+                    contentDescription = stringResource(R.string.generic_open_menu)
                 )
             }
         },
@@ -282,14 +284,14 @@ private fun IngredientAppBar(
                 Icon(
                     imageVector = Icons.Outlined.FilterAlt,
                     tint = Color.White,
-                    contentDescription = "Filtro"
+                    contentDescription = stringResource(R.string.generic_filter)
                 )
             }
             IconButton(onClick = onRefreshPressed) {
                 Icon(
                     imageVector = Icons.Filled.Refresh,
                     tint = Color.White,
-                    contentDescription = "Atualizar"
+                    contentDescription = stringResource(R.string.generic_to_update)
                 )
             }
         }
@@ -328,7 +330,7 @@ private fun FilterDialog(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Filtros",
+                    text = stringResource(R.string.generic_filters),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -336,7 +338,7 @@ private fun FilterDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 TextField(
-                    label = "Nome do ingrediente",
+                    label = stringResource(R.string.ingredient_list_filter_ingredient_name),
                     value = filterValue.name.value,
                     errorMessageCode = filterValue.name.errorMessageCode,
                     onValueChange = onFilterChanged,
@@ -348,10 +350,10 @@ private fun FilterDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Cancelar")
+                        Text(stringResource(R.string.generic_to_cancel))
                     }
                     TextButton(onClick = onFilter) {
-                        Text("Filtrar")
+                        Text(stringResource(R.string.generic_to_filter))
                     }
                 }
             }

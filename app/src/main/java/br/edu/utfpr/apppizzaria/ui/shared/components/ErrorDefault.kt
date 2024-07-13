@@ -14,8 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 
 @Composable
@@ -31,7 +33,7 @@ fun ErrorDefault(
     ) {
         Icon(
             imageVector = Icons.Outlined.CloudOff,
-            contentDescription = "Erro ao processar requisição ao servidor",
+            contentDescription = stringResource(R.string.error_default_content_description_icon),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(80.dp)
         )
@@ -51,7 +53,7 @@ fun ErrorDefault(
                 start = 8.dp,
                 end = 8.dp
             ),
-            text = "Aguarde um momento e tente novamente",
+            text = stringResource(R.string.error_default_try_again_message),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
@@ -59,7 +61,7 @@ fun ErrorDefault(
             onClick = onRetry,
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text(text = "Tentar novamente")
+            Text(text = stringResource(R.string.error_default_try_again))
         }
     }
 }

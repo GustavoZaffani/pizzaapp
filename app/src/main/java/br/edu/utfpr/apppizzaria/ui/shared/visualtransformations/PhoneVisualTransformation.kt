@@ -8,11 +8,11 @@ import br.edu.utfpr.apppizzaria.extensions.toFormattedPhone
 
 class PhoneVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
-        val telefone = text.text
-        val formattedTelefone = telefone.toFormattedPhone()
+        val phone = text.text
+        val formattedPhone = phone.toFormattedPhone()
 
         return TransformedText(
-            AnnotatedString(formattedTelefone),
+            AnnotatedString(formattedPhone),
             TelefoneOffsetMapping
         )
     }

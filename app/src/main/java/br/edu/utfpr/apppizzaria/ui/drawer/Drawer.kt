@@ -11,15 +11,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Assessment
+import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.automirrored.outlined.Segment
 import androidx.compose.material.icons.outlined.LocalPizza
-import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.Segment
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,13 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.ui.Routes
-import br.edu.utfpr.apppizzaria.ui.splash.SplashViewModel
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -108,12 +109,12 @@ private fun DrawerSheet(
                 }
             )
 
-            DrawerItemGroupTitle(title = "Cadastros")
-            Divider(modifier = Modifier.padding(bottom = 8.dp))
+            DrawerItemGroupTitle(title = stringResource(R.string.drawer_section_registers))
+            HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
 
             DrawerItem(
-                imageVector = Icons.Outlined.Segment,
-                label = "Ingredientes",
+                imageVector = Icons.AutoMirrored.Outlined.Segment,
+                label = stringResource(R.string.drawer_menu_ingredients),
                 isSelected = currentRoute == Routes.INGREDIENTS_LIST,
                 onClick = {
                     closeDrawer()
@@ -122,7 +123,7 @@ private fun DrawerSheet(
             )
             DrawerItem(
                 imageVector = Icons.Outlined.LocalPizza,
-                label = "Pizzas",
+                label = stringResource(R.string.drawer_menu_pizza),
                 isSelected = currentRoute == Routes.PIZZA_LIST,
                 onClick = {
                     closeDrawer()
@@ -130,27 +131,18 @@ private fun DrawerSheet(
                 }
             )
 
-            DrawerItemGroupTitle(title = "Análise")
+            DrawerItemGroupTitle(title = stringResource(R.string.drawer_section_analytics))
             Divider(modifier = Modifier.padding(bottom = 8.dp))
 
             DrawerItem(
                 imageVector = Icons.Outlined.ShoppingCart,
-                label = "Vendas",
+                label = stringResource(R.string.drawer_menu_sales),
                 isSelected = currentRoute == Routes.SALES_LIST,
                 onClick = {
                     closeDrawer()
                     onSalePressed()
                 }
             )
-//            DrawerItem(
-//                imageVector = Icons.Outlined.Assessment,
-//                label = "Relatórios",
-//                isSelected = currentRoute == Routes.REPORTS_LIST,
-//                onClick = {
-//                    // TODO
-//                    closeDrawer()
-//                }
-//            )
         }
     }
 }
@@ -228,8 +220,8 @@ fun HeaderDrawer(
         ) {
             IconButton(onClick = onLogout) {
                 Icon(
-                    imageVector = Icons.Outlined.Logout,
-                    contentDescription = "Sair",
+                    imageVector = Icons.AutoMirrored.Outlined.Logout,
+                    contentDescription = stringResource(R.string.generic_to_leave),
                     tint = Color.White,
                     modifier = Modifier
                         .size(48.dp)
@@ -239,7 +231,7 @@ fun HeaderDrawer(
 
             Column {
                 Text(
-                    text = "Bem-vindo, $user!",
+                    text = "${stringResource(R.string.generic_welcome)}, $user!",
                     fontSize = 20.sp,
                     color = Color.White
                 )

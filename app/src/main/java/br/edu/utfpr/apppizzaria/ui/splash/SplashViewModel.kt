@@ -29,7 +29,7 @@ class SplashViewModel(
 
     private fun checkUserLogged() {
         viewModelScope.launch {
-            delay(1) // TODO: aumentar timer
+            delay(1000)
 
             val userLogged = userLoggedDatasource.getUserLogged()
 

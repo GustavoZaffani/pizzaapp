@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.edu.utfpr.apppizzaria.R
@@ -45,10 +46,10 @@ fun HomeScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_baseline_local_pizza),
-                contentDescription = "Logo",
+                contentDescription = stringResource(R.string.generic_logo),
                 modifier = Modifier.size(128.dp)
             )
-            AnimationTypingText(text = "Pizza's App", typingSpeed = 200L)
+            AnimationTypingText(text = stringResource(R.string.app_name), typingSpeed = 200L)
         }
     }
 
@@ -72,14 +73,14 @@ private fun HomeAppBar(
 ) {
     AppBar(
         modifier = modifier,
-        title = "Pizza's App",
+        title = stringResource(R.string.app_name),
         showActions = false,
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     tint = Color.White,
-                    contentDescription = "Abrir menu"
+                    contentDescription = stringResource(R.string.generic_open_menu)
                 )
             }
         },

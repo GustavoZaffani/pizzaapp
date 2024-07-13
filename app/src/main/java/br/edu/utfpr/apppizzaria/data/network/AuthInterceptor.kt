@@ -13,7 +13,7 @@ class AuthInterceptor : Interceptor {
         val authenticatedRequest = originalRequest.newBuilder()
 
         runBlocking {
-            delay(2000)
+            delay(500)
             val userLogged = UserLoggedDatasource(MainActivity.appContext).getUserLogged()
             if (userLogged != null) {
                 authenticatedRequest.header("PizzeriaId", "${userLogged.id}")

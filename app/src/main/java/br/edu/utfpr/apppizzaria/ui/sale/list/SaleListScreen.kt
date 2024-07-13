@@ -22,12 +22,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.data.sale.response.SaleDefaultResponse
 import br.edu.utfpr.apppizzaria.data.sale.response.SaleItemDefaultResponse
 import br.edu.utfpr.apppizzaria.extensions.formatToCurrency
@@ -60,13 +62,13 @@ fun SaleListScreen(
         if (viewModel.uiState.loading) {
             Loading(
                 modifier = Modifier.padding(innerPadding),
-                text = "Carregando vendas...",
+                text = stringResource(R.string.sales_list_loading_sales),
             )
         } else if (viewModel.uiState.hasError) {
             ErrorDefault(
                 modifier = Modifier.padding(innerPadding),
                 onRetry = viewModel::loadSales,
-                text = "Erro ao carregar as vendas"
+                text = stringResource(R.string.sales_list_loading_error)
             )
         } else {
             SalesList(
@@ -85,7 +87,7 @@ private fun SalesList(
     if (sales.isEmpty()) {
         EmptyList(
             modifier = modifier,
-            description = "Nenhuma venda localizada"
+            description = stringResource(R.string.sales_list_empty_list)
         )
     } else {
         SaleListContent(
@@ -147,9 +149,10 @@ private fun SaleListContent(
                 ) {
                     Row {
                         Text(
-                            text = "Pizzas: ",
+                            text = stringResource(R.string.sales_list_pizzas),
                             fontSize = 16.sp,
-                            fontStyle = FontStyle.Italic)
+                            fontStyle = FontStyle.Italic
+                        )
                         Text(
                             text = sale.pizzasList,
                             fontSize = 16.sp,
@@ -196,14 +199,14 @@ private fun SaleAppBar(
 ) {
     AppBar(
         modifier = modifier,
-        title = "Vendas",
+        title = stringResource(R.string.sales_list_appbar_title),
         showActions = showActions,
         navigationIcon = {
             IconButton(onClick = openDrawer) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     tint = Color.White,
-                    contentDescription = "Abrir menu"
+                    contentDescription = stringResource(R.string.generic_open_menu)
                 )
             }
         },
@@ -212,7 +215,7 @@ private fun SaleAppBar(
                 Icon(
                     imageVector = Icons.Filled.Refresh,
                     tint = Color.White,
-                    contentDescription = "Atualizar"
+                    contentDescription = stringResource(R.string.generic_to_update)
                 )
             }
         }

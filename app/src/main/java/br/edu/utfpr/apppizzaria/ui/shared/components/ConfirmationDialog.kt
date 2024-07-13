@@ -5,6 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import br.edu.utfpr.apppizzaria.R
 
 @Composable
 fun ConfirmationDialog(
@@ -25,12 +27,12 @@ fun ConfirmationDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(text = confirmButtonText ?: "Confirmar")
+                Text(text = confirmButtonText ?: stringResource(R.string.generic_to_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = dismissButtonText ?: "Cancelar")
+                Text(text = dismissButtonText ?: stringResource(R.string.generic_to_cancel))
             }
         }
     )

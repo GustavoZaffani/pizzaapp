@@ -13,9 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import br.edu.utfpr.apppizzaria.R
 import br.edu.utfpr.apppizzaria.ui.theme.AppPizzariaTheme
 
 @Composable
@@ -30,12 +32,12 @@ fun EmptyList(
     ) {
         Icon(
             imageVector = Icons.Outlined.Inbox,
-            contentDescription = "ícone",
+            contentDescription = stringResource(R.string.empty_list_content_description_icon),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(80.dp)
         )
         Text(
-            text = "Nenhum registro encontrado",
+            text = stringResource(R.string.empty_list_no_register_found),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold
             ),
