@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.data.network.ApiService
+import br.edu.utfpr.apppizzaria.data.network.decodeErrorBody
+import br.edu.utfpr.apppizzaria.data.network.errors.ErrorData
 import br.edu.utfpr.apppizzaria.data.pizza.request.PizzaCreateRequest
 import br.edu.utfpr.apppizzaria.data.pizza.request.PizzaIngredientCreateRequest
 import br.edu.utfpr.apppizzaria.data.pizza.request.PizzaUpdateRequest
@@ -18,6 +20,7 @@ import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateFieldRequired
 import br.edu.utfpr.apppizzaria.ui.shared.utils.Utils
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.math.BigDecimal
 import java.util.UUID
 
@@ -34,7 +37,12 @@ data class FormState(
     val ingredients: List<PizzaIngredientState> = listOf()
 ) {
     val isValid
-        get(): Boolean = FormFieldUtils.isValid(listOf(name, price)) && ingredients.any { it.quantity > BigDecimal.ZERO }
+        get(): Boolean = FormFieldUtils.isValid(
+            listOf(
+                name,
+                price
+            )
+        ) && ingredients.any { it.quantity > BigDecimal.ZERO }
 
     val ingredientsAdded
         get(): List<String> = ingredients
@@ -46,15 +54,18 @@ data class PizzaFormUiState(
     val pizzaId: UUID = Utils.GERERIC_UUID,
     val formState: FormState = FormState(),
     val isLoadingPizza: Boolean = false,
+    val hasErrorLoadingPizza: Boolean = false,
     val isLoadingIngredients: Boolean = false,
-    val hasErrorLoading: Boolean = false,
+    val hasErrorLoadingIngredients: Boolean = false,
     val isSaving: Boolean = false,
-    val hasErrorSaving: Boolean = false,
+    val hasUnexpectedError: Boolean = false,
+    val hasHttpError: Boolean = false,
+    val errorBody: ErrorData = ErrorData(),
     val pizzaSaved: Boolean = false
 ) {
     val isNewPizza get(): Boolean = pizzaId == Utils.GERERIC_UUID
-    val isSuccessLoading get(): Boolean = !isLoadingPizza && !isLoadingIngredients && !hasErrorLoading
-    val isAnyLoading get(): Boolean = isLoadingPizza || isLoadingIngredients
+    val isSuccessLoading get(): Boolean = !isLoadingPizza && !isLoadingIngredients && !hasErrorLoadingPizza && !hasErrorLoadingIngredients
+    val hasAnyLoading get(): Boolean = isLoadingPizza || isLoadingIngredients
 }
 
 class PizzaFormViewModel(
@@ -77,10 +88,10 @@ class PizzaFormViewModel(
         }
     }
 
-    private fun loadInfoToAddPizza() {
+    fun loadInfoToAddPizza() {
         uiState = uiState.copy(
             isLoadingIngredients = true,
-            hasErrorLoading = false
+            hasErrorLoadingIngredients = false
         )
 
         viewModelScope.launch {
@@ -101,10 +112,11 @@ class PizzaFormViewModel(
                     )
                 )
             } catch (ex: Exception) {
-                Log.d(tag, "Erro ao carregar os dados do ingrediente", ex)
+                Log.d(tag, "Erro ao carregar os dados de ingrediente da pizza", ex)
+
                 uiState.copy(
                     isLoadingIngredients = false,
-                    hasErrorLoading = true
+                    hasErrorLoadingIngredients = true
                 )
             }
         }
@@ -113,7 +125,7 @@ class PizzaFormViewModel(
     fun loadPizza() {
         uiState = uiState.copy(
             isLoadingPizza = true,
-            hasErrorLoading = false
+            hasErrorLoadingPizza = false
         )
 
         viewModelScope.launch {
@@ -139,7 +151,7 @@ class PizzaFormViewModel(
                 Log.d(tag, "Erro ao carregar os dados da pizza", ex)
                 uiState.copy(
                     isLoadingPizza = false,
-                    hasErrorLoading = true
+                    hasErrorLoadingPizza = true
                 )
             }
         }
@@ -230,7 +242,9 @@ class PizzaFormViewModel(
 
         uiState = uiState.copy(
             isSaving = true,
-            hasErrorSaving = false
+            hasUnexpectedError = false,
+            hasHttpError = false,
+            errorBody = ErrorData()
         )
 
         viewModelScope.launch {
@@ -247,10 +261,19 @@ class PizzaFormViewModel(
                 )
             } catch (ex: Exception) {
                 Log.d(tag, "Erro ao salvar a pizza", ex)
-                uiState.copy(
-                    isSaving = false,
-                    hasErrorSaving = true
-                )
+
+                if (ex is HttpException) {
+                    uiState.copy(
+                        isSaving = false,
+                        hasHttpError = true,
+                        errorBody = decodeErrorBody(ex.response()?.errorBody()?.string())!!
+                    )
+                } else {
+                    uiState.copy(
+                        isSaving = false,
+                        hasUnexpectedError = true
+                    )
+                }
             }
         }
     }

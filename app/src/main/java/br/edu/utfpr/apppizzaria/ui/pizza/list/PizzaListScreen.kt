@@ -1,5 +1,6 @@
 package br.edu.utfpr.apppizzaria.ui.pizza.list
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,10 +21,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +38,7 @@ import br.edu.utfpr.apppizzaria.data.pizza.response.PizzaIngredientDefaultRespon
 import br.edu.utfpr.apppizzaria.extensions.formatToCurrency
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
 import br.edu.utfpr.apppizzaria.ui.shared.components.CardList
+import br.edu.utfpr.apppizzaria.ui.shared.components.ConfirmationDialog
 import br.edu.utfpr.apppizzaria.ui.shared.components.EmptyList
 import br.edu.utfpr.apppizzaria.ui.shared.components.ErrorDefault
 import br.edu.utfpr.apppizzaria.ui.shared.components.Loading
@@ -50,6 +54,29 @@ fun PizzaListScreen(
     openDrawer: () -> Unit,
     onPizzaPressed: (PizzaDefaultResponse) -> Unit
 ) {
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModel.uiState.pizzaDeleted) {
+        if (viewModel.uiState.pizzaDeleted) {
+            Toast.makeText(
+                context,
+                "Pizza removida com sucesso.",
+                Toast.LENGTH_LONG
+            ).show()
+
+            viewModel.loadPizzas()
+        }
+    }
+
+    if (viewModel.uiState.showConfirmationDialog) {
+        ConfirmationDialog(
+            title = "Deseja remover a pizza?",
+            text = "Caso seguir, a pizza será removida e não poderá ser recuperada novamente",
+            onDismiss = viewModel::dismissConfirmationDialog,
+            onConfirm = viewModel::deletePizza
+        )
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -70,10 +97,12 @@ fun PizzaListScreen(
             }
         }
     ) { innerPadding ->
-        if (viewModel.uiState.loading) {
+        if (viewModel.uiState.hasAnyLoading) {
+            val loadingText =
+                if (viewModel.uiState.loading) "Carregando pizzas..." else "Removendo pizza..."
             Loading(
                 modifier = Modifier.padding(innerPadding),
-                text = "Carregando pizzas...",
+                text = loadingText,
             )
         } else if (viewModel.uiState.hasError) {
             ErrorDefault(
@@ -81,11 +110,18 @@ fun PizzaListScreen(
                 onRetry = viewModel::loadPizzas,
                 text = "Erro ao carregar as pizzas"
             )
+        } else if (viewModel.uiState.hasErrorDeleting) {
+            ErrorDefault(
+                modifier = Modifier.padding(innerPadding),
+                onRetry = viewModel::deletePizza,
+                text = "Erro ao remover a pizza"
+            )
         } else {
             PizzaList(
                 modifier = Modifier.padding(innerPadding),
                 pizzas = viewModel.uiState.pizzas,
-                onItemPressed = onPizzaPressed
+                onItemPressed = onPizzaPressed,
+                onLongItemPressed = { pizza -> viewModel.showConfirmationDialog(pizza) }
             )
         }
     }
@@ -95,18 +131,20 @@ fun PizzaListScreen(
 private fun PizzaList(
     modifier: Modifier = Modifier,
     pizzas: List<PizzaDefaultResponse> = listOf(),
-    onItemPressed: (PizzaDefaultResponse) -> Unit
+    onItemPressed: (PizzaDefaultResponse) -> Unit,
+    onLongItemPressed: (PizzaDefaultResponse) -> Unit
 ) {
     if (pizzas.isEmpty()) {
         EmptyList(
             modifier = modifier,
-            description = "teste"
+            description = "Nenhuma pizza cadastrada"
         )
     } else {
         PizzaListContent(
             modifier = modifier,
             pizzas = pizzas,
-            onItemPressed = onItemPressed
+            onItemPressed = onItemPressed,
+            onLongItemPressed = onLongItemPressed
         )
     }
 }
@@ -115,12 +153,14 @@ private fun PizzaList(
 private fun PizzaListContent(
     modifier: Modifier = Modifier,
     pizzas: List<PizzaDefaultResponse>,
-    onItemPressed: (PizzaDefaultResponse) -> Unit
+    onItemPressed: (PizzaDefaultResponse) -> Unit,
+    onLongItemPressed: (PizzaDefaultResponse) -> Unit
 ) {
     CardList(
         modifier = modifier,
         items = pizzas,
-        onItemPressed = onItemPressed
+        onItemPressed = onItemPressed,
+        onLongItemPressed = onLongItemPressed
     ) { pizza ->
         Column(
             modifier = Modifier
@@ -224,7 +264,8 @@ private fun PizzaListContentPreview() {
                     )
                 )
             ),
-            onItemPressed = {}
+            onItemPressed = {},
+            onLongItemPressed = {}
         )
     }
 }

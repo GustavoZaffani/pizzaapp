@@ -1,16 +1,13 @@
 package br.edu.utfpr.apppizzaria.ui.ingredient.form
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -18,15 +15,21 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
 import br.edu.utfpr.apppizzaria.ui.shared.components.DefaultActionFormToolbar
+import br.edu.utfpr.apppizzaria.ui.shared.components.ErrorDefault
+import br.edu.utfpr.apppizzaria.ui.shared.components.ErrorDetails
 import br.edu.utfpr.apppizzaria.ui.shared.components.Loading
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.CurrencyField
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.DropdownField
@@ -42,20 +45,39 @@ fun IngredientFormScreen(
     onBackPressed: () -> Unit,
     onIngredientSaved: () -> Unit
 ) {
+    val context = LocalContext.current
+    var showHttpErrorModal by remember { mutableStateOf(false) }
+
     LaunchedEffect(viewModel.uiState.ingredientSaved) {
         if (viewModel.uiState.ingredientSaved) {
+            Toast.makeText(
+                context,
+                "Ingrediente registrado com sucesso.",
+                Toast.LENGTH_LONG
+            ).show()
             onIngredientSaved()
         }
-
     }
 
-    LaunchedEffect(snackbarHostState, viewModel.uiState.hasErrorSaving) {
-        if (viewModel.uiState.hasErrorSaving) {
+    LaunchedEffect(snackbarHostState, viewModel.uiState.hasUnexpectedError) {
+        if (viewModel.uiState.hasUnexpectedError) {
             snackbarHostState.showSnackbar(
                 "Não foi possível salvar o ingrediente. Aguarde um momento e tente novamente."
             )
         }
     }
+
+    LaunchedEffect(viewModel.uiState.hasHttpError) {
+        if (viewModel.uiState.hasHttpError) {
+            showHttpErrorModal = true
+        }
+    }
+
+    ErrorDetails(
+        errorData = viewModel.uiState.errorBody,
+        showModal = showHttpErrorModal,
+        onDismissModal = { showHttpErrorModal = false }
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -72,6 +94,12 @@ fun IngredientFormScreen(
     ) { innerPadding ->
         if (viewModel.uiState.isLoading) {
             Loading(text = "Carregando ingrediente...")
+        } else if (viewModel.uiState.hasErrorLoading) {
+            ErrorDefault(
+                modifier = Modifier.padding(innerPadding),
+                onRetry = viewModel::loadIngredient,
+                text = "Erro ao carregar o ingrediente"
+            )
         } else {
             FormContent(
                 modifier = Modifier.padding(innerPadding),

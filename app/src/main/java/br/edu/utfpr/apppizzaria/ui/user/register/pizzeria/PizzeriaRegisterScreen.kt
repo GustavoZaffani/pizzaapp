@@ -18,7 +18,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -28,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.apppizzaria.data.pizzeria.enumerations.State
+import br.edu.utfpr.apppizzaria.ui.shared.components.ErrorDetails
 import br.edu.utfpr.apppizzaria.ui.shared.components.SectionHeader
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.DropdownField
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.EmailField
@@ -46,6 +50,7 @@ fun PizzeriaRegisterScreen(
     onRegisterSaved: () -> Unit
 ) {
     val context = LocalContext.current
+    var showHttpErrorModal by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.uiState.pizzeriaSaved) {
         if (viewModel.uiState.pizzeriaSaved) {
@@ -58,13 +63,25 @@ fun PizzeriaRegisterScreen(
         }
     }
 
-    LaunchedEffect(snackbarHostState, viewModel.uiState.hasErrorSaving) {
-        if (viewModel.uiState.hasErrorSaving) {
+    LaunchedEffect(snackbarHostState, viewModel.uiState.hasUnexpectedError) {
+        if (viewModel.uiState.hasUnexpectedError) {
             snackbarHostState.showSnackbar(
                 "Não foi possível registrar a pizzaria. Aguarde um momento e tente novamente."
             )
         }
     }
+
+    LaunchedEffect(viewModel.uiState.hasHttpError) {
+        if (viewModel.uiState.hasHttpError) {
+            showHttpErrorModal = true
+        }
+    }
+
+    ErrorDetails(
+        errorData = viewModel.uiState.errorBody,
+        showModal = showHttpErrorModal,
+        onDismissModal = { showHttpErrorModal = false }
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),

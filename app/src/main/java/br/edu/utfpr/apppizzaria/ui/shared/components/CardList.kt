@@ -1,5 +1,6 @@
 package br.edu.utfpr.apppizzaria.ui.shared.components
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -17,6 +19,7 @@ fun <T> CardList(
     modifier: Modifier = Modifier,
     items: List<T>,
     onItemPressed: (T) -> Unit,
+    onLongItemPressed: (T) -> Unit = {},
     itemContent: @Composable (T) -> Unit
 ) {
     LazyColumn(
@@ -26,16 +29,19 @@ fun <T> CardList(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = { onLongItemPressed(item) },
+                            onTap = { onItemPressed(item) }
+                        )
+                    },
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
                 ),
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 8.dp
-                ),
-                onClick = {
-                    onItemPressed(item)
-                }
+                )
             ) {
                 itemContent(item)
             }

@@ -170,7 +170,6 @@ private fun SaleListContentPreview() {
             sales = listOf(
                 SaleDefaultResponse(
                     id = UUID.randomUUID(),
-                    pizzeriaId = UUID.randomUUID(),
                     saleItems = listOf(
                         SaleItemDefaultResponse(
                             pizzaName = "Calabresa",

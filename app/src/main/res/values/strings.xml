@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">apppizzaria</string>
+    <string name="app_name">Pizza\'s App</string>
     <string name="field_required">O campo é obrigatório</string>
     <string name="field_must_be_greater_than_zero">O valor do campo deve ser maior que 0</string>
 </resources>

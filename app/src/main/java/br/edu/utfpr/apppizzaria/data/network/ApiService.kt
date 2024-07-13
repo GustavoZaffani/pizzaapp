@@ -1,6 +1,7 @@
 package br.edu.utfpr.apppizzaria.data.network
 
 import br.edu.utfpr.apppizzaria.data.ingredient.network.ApiIngredientService
+import br.edu.utfpr.apppizzaria.data.network.errors.ErrorData
 import br.edu.utfpr.apppizzaria.data.network.serializers.BigDecimalSerializer
 import br.edu.utfpr.apppizzaria.data.network.serializers.DateSerializer
 import br.edu.utfpr.apppizzaria.data.network.serializers.UUIDSerializer
@@ -19,12 +20,14 @@ import java.util.UUID
 
 private val json = Json {
     ignoreUnknownKeys = true
+    encodeDefaults = true
     serializersModule = SerializersModule {
         contextual(BigDecimal::class, BigDecimalSerializer)
         contextual(UUID::class, UUIDSerializer)
         contextual(Date::class, DateSerializer)
     }
 }
+
 private val jsonConverterFactory = json.asConverterFactory("application/json".toMediaType())
 
 private val okHttpClient = OkHttpClient.Builder()
@@ -53,5 +56,17 @@ object ApiService {
 
     val sales: ApiSaleService by lazy {
         apiPizzaClient.create(ApiSaleService::class.java)
+    }
+}
+
+fun decodeErrorBody(errorBody: String?): ErrorData? {
+    return if (errorBody != null) {
+        try {
+            json.decodeFromString<ErrorData>(errorBody)
+        } catch (e: Exception) {
+            null
+        }
+    } else {
+        null
     }
 }

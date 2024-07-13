@@ -4,6 +4,7 @@ import br.edu.utfpr.apppizzaria.data.pizza.request.PizzaCreateRequest
 import br.edu.utfpr.apppizzaria.data.pizza.request.PizzaUpdateRequest
 import br.edu.utfpr.apppizzaria.data.pizza.response.PizzaDefaultResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -26,4 +27,7 @@ interface ApiPizzaService {
         @Body pizza: PizzaUpdateRequest,
         @Path("id") id: UUID
     ): PizzaDefaultResponse
+
+    @DELETE("v1/pizzas/{id}")
+    suspend fun delete(@Path("id") id: UUID)
 }

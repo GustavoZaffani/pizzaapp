@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import br.edu.utfpr.apppizzaria.data.network.ApiService
+import br.edu.utfpr.apppizzaria.data.network.decodeErrorBody
+import br.edu.utfpr.apppizzaria.data.network.errors.ErrorData
 import br.edu.utfpr.apppizzaria.data.pizzeria.enumerations.State
 import br.edu.utfpr.apppizzaria.data.pizzeria.request.AddressRequest
 import br.edu.utfpr.apppizzaria.data.pizzeria.request.PizzeriaCreateRequest
@@ -14,6 +16,7 @@ import br.edu.utfpr.apppizzaria.ui.shared.utils.FormField
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateFieldRequired
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 data class FormState(
     val name: FormField = FormField(),
@@ -53,7 +56,9 @@ data class FormState(
 data class PizzeriaRegisterUiState(
     val formState: FormState = FormState(),
     val isSaving: Boolean = false,
-    val hasErrorSaving: Boolean = false,
+    val hasUnexpectedError: Boolean = false,
+    val hasHttpError: Boolean = false,
+    val errorBody: ErrorData = ErrorData(),
     val pizzeriaSaved: Boolean = false
 )
 
@@ -69,7 +74,9 @@ class PizzeriaRegisterViewModel : ViewModel() {
 
         uiState = uiState.copy(
             isSaving = true,
-            hasErrorSaving = false
+            hasUnexpectedError = false,
+            hasHttpError = false,
+            errorBody = ErrorData()
         )
 
         viewModelScope.launch {
@@ -82,10 +89,19 @@ class PizzeriaRegisterViewModel : ViewModel() {
                 )
             } catch (ex: Exception) {
                 Log.d(tag, "Erro ao registrar a pizzaria", ex)
-                uiState.copy(
-                    isSaving = false,
-                    hasErrorSaving = true
-                )
+
+                if (ex is HttpException) {
+                    uiState.copy(
+                        isSaving = false,
+                        hasHttpError = true,
+                        errorBody = decodeErrorBody(ex.response()?.errorBody()?.string())!!
+                    )
+                } else {
+                    uiState.copy(
+                        isSaving = false,
+                        hasUnexpectedError = true
+                    )
+                }
             }
         }
     }

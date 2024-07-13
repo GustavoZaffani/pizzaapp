@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import br.edu.utfpr.apppizzaria.data.network.ApiService
+import br.edu.utfpr.apppizzaria.data.network.decodeErrorBody
+import br.edu.utfpr.apppizzaria.data.network.errors.ErrorData
 import br.edu.utfpr.apppizzaria.data.pizzeria.request.PizzeriaLoginRequest
 import br.edu.utfpr.apppizzaria.data.user.local.UserLogged
 import br.edu.utfpr.apppizzaria.data.user.local.UserLoggedDatasource
@@ -17,6 +19,7 @@ import br.edu.utfpr.apppizzaria.ui.shared.utils.FormField
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateFieldRequired
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 data class FormState(
     val login: FormField = FormField(),
@@ -34,7 +37,9 @@ data class FormState(
 data class LoginRegisterUiState(
     val formState: FormState = FormState(),
     val isProcessing: Boolean = false,
-    val hasErrorLogin: Boolean = false,
+    val hasUnexpectedError: Boolean = false,
+    val hasHttpError: Boolean = false,
+    val errorBody: ErrorData = ErrorData(),
     val loginSuccess: Boolean = false
 )
 
@@ -51,7 +56,9 @@ class LoginViewModel(private val userLoggedDatasource: UserLoggedDatasource) : V
 
         uiState = uiState.copy(
             isProcessing = true,
-            hasErrorLogin = false
+            hasUnexpectedError = false,
+            hasHttpError = false,
+            errorBody = ErrorData()
         )
 
         viewModelScope.launch {
@@ -64,10 +71,19 @@ class LoginViewModel(private val userLoggedDatasource: UserLoggedDatasource) : V
                 )
             } catch (ex: Exception) {
                 Log.d(tag, "Erro ao efetuar o login", ex)
-                uiState.copy(
-                    isProcessing = false,
-                    hasErrorLogin = true
-                )
+
+                if (ex is HttpException) {
+                    uiState.copy(
+                        isProcessing = false,
+                        hasHttpError = true,
+                        errorBody = decodeErrorBody(ex.response()?.errorBody()?.string())!!
+                    )
+                } else {
+                    uiState.copy(
+                        isProcessing = false,
+                        hasUnexpectedError = true
+                    )
+                }
             }
         }
     }

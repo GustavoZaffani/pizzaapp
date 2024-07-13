@@ -1,5 +1,6 @@
 package br.edu.utfpr.apppizzaria.ui.pizza.form
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.ui.shared.components.AppBar
 import br.edu.utfpr.apppizzaria.ui.shared.components.DefaultActionFormToolbar
+import br.edu.utfpr.apppizzaria.ui.shared.components.ErrorDefault
+import br.edu.utfpr.apppizzaria.ui.shared.components.ErrorDetails
 import br.edu.utfpr.apppizzaria.ui.shared.components.Loading
 import br.edu.utfpr.apppizzaria.ui.shared.components.SectionHeader
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.CurrencyField
@@ -51,19 +55,39 @@ fun PizzaFormScreen(
     onBackPressed: () -> Unit,
     onPizzaSaved: () -> Unit
 ) {
+    val context = LocalContext.current
+    var showHttpErrorModal by remember { mutableStateOf(false) }
+
     LaunchedEffect(viewModel.uiState.pizzaSaved) {
         if (viewModel.uiState.pizzaSaved) {
+            Toast.makeText(
+                context,
+                "Pizza registrada com sucesso.",
+                Toast.LENGTH_LONG
+            ).show()
             onPizzaSaved()
         }
     }
 
-    LaunchedEffect(snackbarHostState, viewModel.uiState.hasErrorSaving) {
-        if (viewModel.uiState.hasErrorSaving) {
+    LaunchedEffect(snackbarHostState, viewModel.uiState.hasUnexpectedError) {
+        if (viewModel.uiState.hasUnexpectedError) {
             snackbarHostState.showSnackbar(
                 "Não foi possível salvar o ingrediente. Aguarde um momento e tente novamente."
             )
         }
     }
+
+    LaunchedEffect(viewModel.uiState.hasHttpError) {
+        if (viewModel.uiState.hasHttpError) {
+            showHttpErrorModal = true
+        }
+    }
+
+    ErrorDetails(
+        errorData = viewModel.uiState.errorBody,
+        showModal = showHttpErrorModal,
+        onDismissModal = { showHttpErrorModal = false }
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -78,13 +102,24 @@ fun PizzaFormScreen(
             )
         }
     ) { innerPadding ->
-        val textLoading =
-            if (viewModel.uiState.isLoadingPizza) "Carregando pizza..." else "Buscando ingredientes..."
-
-        if (viewModel.uiState.isAnyLoading) {
+        if (viewModel.uiState.hasAnyLoading) {
+            val textLoading =
+                if (viewModel.uiState.isLoadingPizza) "Carregando pizza..." else "Buscando ingredientes..."
             Loading(
                 modifier = modifier.padding(innerPadding),
                 text = textLoading
+            )
+        } else if (viewModel.uiState.hasErrorLoadingPizza) {
+            ErrorDefault(
+                modifier = Modifier.padding(innerPadding),
+                onRetry = viewModel::loadPizza,
+                text = "Erro ao carregar a pizza"
+            )
+        } else if (viewModel.uiState.hasErrorLoadingIngredients) {
+            ErrorDefault(
+                modifier = Modifier.padding(innerPadding),
+                onRetry = viewModel::loadInfoToAddPizza,
+                text = "Erro ao carregar os ingredientes da pizza"
             )
         } else {
             FormContent(

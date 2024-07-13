@@ -14,6 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
@@ -22,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.apppizzaria.ui.shared.components.ClickableTextDefault
+import br.edu.utfpr.apppizzaria.ui.shared.components.ErrorDetails
 import br.edu.utfpr.apppizzaria.ui.shared.components.Loading
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.PasswordField
 import br.edu.utfpr.apppizzaria.ui.shared.components.form.TextField
@@ -34,11 +39,25 @@ fun LoginScreen(
     onClickNewRegister: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
+    var showHttpErrorModal by remember { mutableStateOf(false) }
+
     LaunchedEffect(viewModel.uiState.loginSuccess) {
         if (viewModel.uiState.loginSuccess) {
             onLoginSuccess()
         }
     }
+
+    LaunchedEffect(viewModel.uiState.hasHttpError) {
+        if (viewModel.uiState.hasHttpError) {
+            showHttpErrorModal = true
+        }
+    }
+
+    ErrorDetails(
+        errorData = viewModel.uiState.errorBody,
+        showModal = showHttpErrorModal,
+        onDismissModal = { showHttpErrorModal = false }
+    )
 
     if (viewModel.uiState.isProcessing) {
         Loading(text = "Efetuando login...")

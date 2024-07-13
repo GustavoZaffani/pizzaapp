@@ -11,13 +11,15 @@ import br.edu.utfpr.apppizzaria.data.ingredient.MeasurementUnit
 import br.edu.utfpr.apppizzaria.data.ingredient.request.IngredientCreateRequest
 import br.edu.utfpr.apppizzaria.data.ingredient.request.IngredientUpdateRequest
 import br.edu.utfpr.apppizzaria.data.network.ApiService
+import br.edu.utfpr.apppizzaria.data.network.decodeErrorBody
+import br.edu.utfpr.apppizzaria.data.network.errors.ErrorData
 import br.edu.utfpr.apppizzaria.ui.Arguments
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormField
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils
-import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateBigDecimalPositive
 import br.edu.utfpr.apppizzaria.ui.shared.utils.FormFieldUtils.Companion.validateFieldRequired
 import br.edu.utfpr.apppizzaria.ui.shared.utils.Utils
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.util.UUID
 
 data class FormState(
@@ -39,11 +41,13 @@ data class FormState(
 
 data class IngredientFormUiState(
     val ingredientId: UUID = Utils.GERERIC_UUID,
+    val formState: FormState = FormState(),
     val isLoading: Boolean = false,
     val hasErrorLoading: Boolean = false,
-    val formState: FormState = FormState(),
     val isSaving: Boolean = false,
-    val hasErrorSaving: Boolean = false,
+    val hasUnexpectedError: Boolean = false,
+    val hasHttpError: Boolean = false,
+    val errorBody: ErrorData = ErrorData(),
     val ingredientSaved: Boolean = false
 ) {
     val isNewIngredient get(): Boolean = ingredientId == Utils.GERERIC_UUID
@@ -130,15 +134,11 @@ class IngredientFormViewModel(
                 formState = uiState.formState.copy(
                     price = uiState.formState.price.copy(
                         value = price,
-                        errorMessageCode = validatePrice(price)
+                        errorMessageCode = validateFieldRequired(price)
                     )
                 )
             )
         }
-    }
-
-    private fun validatePrice(price: String): Int? {
-        return validateFieldRequired(price) ?: validateBigDecimalPositive(price)
     }
 
     fun onMeasurementUnitChanged(measurementUnit: String) {
@@ -159,15 +159,11 @@ class IngredientFormViewModel(
                 formState = uiState.formState.copy(
                     quantity = uiState.formState.quantity.copy(
                         value = quantity,
-                        errorMessageCode = validateQuantity(quantity)
+                        errorMessageCode = validateFieldRequired(quantity)
                     )
                 )
             )
         }
-    }
-
-    private fun validateQuantity(quantity: String): Int? {
-        return validateFieldRequired(quantity) ?: validateBigDecimalPositive(quantity)
     }
 
     fun onClearValueName() {
@@ -217,7 +213,9 @@ class IngredientFormViewModel(
 
         uiState = uiState.copy(
             isSaving = true,
-            hasErrorSaving = false
+            hasUnexpectedError = false,
+            hasHttpError = false,
+            errorBody = ErrorData()
         )
 
         viewModelScope.launch {
@@ -234,10 +232,19 @@ class IngredientFormViewModel(
                 )
             } catch (ex: Exception) {
                 Log.d(tag, "Erro ao salvar o ingrediente", ex)
-                uiState.copy(
-                    isSaving = false,
-                    hasErrorSaving = true
-                )
+
+                if (ex is HttpException) {
+                    uiState.copy(
+                        isSaving = false,
+                        hasHttpError = true,
+                        errorBody = decodeErrorBody(ex.response()?.errorBody()?.string())!!
+                    )
+                } else {
+                    uiState.copy(
+                        isSaving = false,
+                        hasUnexpectedError = true
+                    )
+                }
             }
         }
     }
@@ -270,10 +277,10 @@ class IngredientFormViewModel(
                     errorMessageCode = validateFieldRequired(uiState.formState.description.value)
                 ),
                 price = uiState.formState.price.copy(
-                    errorMessageCode = validatePrice(uiState.formState.price.value)
+                    errorMessageCode = validateFieldRequired(uiState.formState.price.value)
                 ),
                 quantity = uiState.formState.quantity.copy(
-                    errorMessageCode = validateQuantity(uiState.formState.quantity.value)
+                    errorMessageCode = validateFieldRequired(uiState.formState.quantity.value)
                 )
             )
         )

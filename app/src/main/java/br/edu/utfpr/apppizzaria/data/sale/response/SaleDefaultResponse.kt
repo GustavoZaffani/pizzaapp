@@ -10,10 +10,12 @@ import java.util.UUID
 @Serializable
 data class SaleDefaultResponse(
     @Contextual val id: UUID = Utils.GERERIC_UUID,
-    @Contextual val pizzeriaId: UUID = Utils.GERERIC_UUID,
     val saleItems: List<SaleItemDefaultResponse> = listOf(),
     @Contextual val saleDate: Date = Date(),
     @Contextual val total: BigDecimal = BigDecimal.ZERO
 ) {
-    val pizzasList get(): String = "${saleItems.map { "${it.quantity} - ${it.pizzaName}" }.joinToString()}"
+    val pizzasList
+        get(): String = "${
+            saleItems.map { "${it.quantity} - ${it.pizzaName}" }.joinToString()
+        }"
 }
